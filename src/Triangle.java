@@ -74,19 +74,19 @@ public class Triangle {
         Point3D tmp2 = point.subtract(scene.points.get(this.a));
         Point3D v1 = tmp1.vMultiply(tmp2);
         double a1 = v1.sMultiply(getNormal());
-        if (a1 < 0.000001d) return false;
+        if (a1 < 0d) return false;
 
         tmp1 = point.subtract(scene.points.get(this.a));
         tmp2 = scene.points.get(this.c).subtract(scene.points.get(this.a));
         Point3D v2 = tmp1.vMultiply(tmp2);
         double a2 = v2.sMultiply(getNormal());
-        if (a2 < 0.000001d) return false;
+        if (a2 < 0d) return false;
 
         tmp1 = scene.points.get(this.b).subtract(point);
         tmp2 = scene.points.get(this.c).subtract(point);
         Point3D v3 = tmp1.vMultiply(tmp2);
         double a3 = v3.sMultiply(getNormal());
-        if (a3 < 0.000001d) return false;
+        if (a3 < 0d) return false;
 
         return true;
     }

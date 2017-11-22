@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Scene {
     ArrayList<Point3D> points = new ArrayList<>();
     ArrayList<Triangle> triangles = new ArrayList<>();
-    Point3D camera = new Point3D(0d, -1d, 0d);
+    Point3D camera = new Point3D(0d, 0d, 0d);
     double viewPortWidth = 1;
     double viewPortHeight = 1;
     Point3D cameraVector = new Point3D(0d, 0d, 1d);
