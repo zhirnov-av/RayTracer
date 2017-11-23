@@ -14,8 +14,9 @@ import java.io.InputStreamReader;
 public class Main extends JFrame{
 
     Scene scene = new Scene();
-    Canvas canvas = new Canvas(500, 500);
+    Canvas canvas = new Canvas(1024, 768);
     private DrawPanel panel = new DrawPanel(canvas);
+    private Timer timer;
 
     public Main() {
         super("RayTracing...");
@@ -30,9 +31,17 @@ public class Main extends JFrame{
         panel.setDoubleBuffered(true);
         container.add(panel);
 
+        timer = new Timer(250, new TimerListener());
+
         drawScene();
     }
 
+    private class TimerListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            panel.repaint(panel.getBounds());
+        }
+    }
     private void createMenu() {
         JMenuBar menu = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
@@ -64,7 +73,7 @@ public class Main extends JFrame{
 
     public void drawScene(){
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        BufferedReader br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("tor_knot.tdf")));
+        BufferedReader br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));
         try {
             br.readLine();
             int numPoints = Integer.parseInt(br.readLine());
@@ -73,15 +82,13 @@ public class Main extends JFrame{
             for (int i = 0; i < numPoints; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.points.add(new Point3D(Double.parseDouble(arr[0])/10, Double.parseDouble(arr[1])/10, Double.parseDouble(arr[2])/10 + 200));
+                scene.points.add(new Point3D(Double.parseDouble(arr[0])/5, Double.parseDouble(arr[1])/5 - 20, Double.parseDouble(arr[2])/5 + 50));
             }
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
                 scene.triangles.add(new Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2])));
             }
-
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -109,10 +116,15 @@ public class Main extends JFrame{
         scene.addTriangle(new Triangle3D(new Point3D(-1d, -1d, 20d), new Point3D(1d, -1d, 20d), new Point3D(1d, -1d, 10d)));
         */
 
+        /*
         long start = System.currentTimeMillis();
         canvas.fillCanvasV2(scene);
         long end = System.currentTimeMillis();
         System.out.println(String.format("getIntersection = %d isPointInV2 = %d traceRay = %d fillCanvas = %d", scene.times.get("getIntersection"), scene.times.get("isPointInV2"), scene.times.get("traceRay"), end - start));
+        */
+        MainRenderingThread mainThread = new MainRenderingThread(canvas, scene);
+        mainThread.start();
+        timer.start();
         panel.repaint(panel.getBounds());
     }
 

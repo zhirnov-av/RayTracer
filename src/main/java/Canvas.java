@@ -10,7 +10,7 @@ public class Canvas {
     private Color[][] bitmap;
 
 
-    public Canvas(int height, int width) {
+    public Canvas(int width, int height) {
         this.height = height;
         this.width = width;
         this.halfWidth = this.width / 2;

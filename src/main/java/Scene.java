@@ -15,10 +15,10 @@ public class Scene {
     ArrayList<Light> lights = new ArrayList<>();
     HashMap<String, Long> times = new HashMap<>();
 
-    Point3D camera = new Point3D(0d, 0.2d, 0d);
+    Point3D camera = new Point3D(0d, 0.4d, 0d);
     double viewPortWidth = 1;
     double viewPortHeight = 1;
-    Point3D cameraVector = new Point3D(0d, 0.1d, 1d);
+    Point3D cameraVector = new Point3D(0d, 0.0d, 1d);
     Canvas canvas;
 
     public void addLight(Light light){
