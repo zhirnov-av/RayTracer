@@ -1,5 +1,5 @@
 import base.Color;
-import base.Point3D;
+import base.Point3d;
 import lights.DirectLight;
 import lights.Light;
 import lights.LightTypes;
@@ -10,15 +10,15 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 public class Scene {
-    ArrayList<Point3D> points = new ArrayList<>();
+    ArrayList<Point3d> points = new ArrayList<>();
     TreeSet<Triangle> triangles = new TreeSet<>();
     ArrayList<Light> lights = new ArrayList<>();
     HashMap<String, Long> times = new HashMap<>();
 
-    Point3D camera = new Point3D(0d, 0.2d, 0d);
+    Point3d camera = new Point3d(0d, 0.4d, 0d);
     double viewPortWidth = 1;
     double viewPortHeight = 1;
-    Point3D cameraVector = new Point3D(0d, 0.1d, 1d);
+    Point3d cameraVector = new Point3d(0d, 0.0d, 1d);
     Canvas canvas;
 
     public void addLight(Light light){
@@ -50,12 +50,12 @@ public class Scene {
         Color color = null;
         double xVp = (double)x * viewPortWidth/(double)canvas.getWidth();
         double yVp = (double)y * viewPortHeight/(double)canvas.getHeight();
-        Point3D vwp = new Point3D(xVp, yVp, cameraVector.z);
-        Point3D diff = new Point3D(vwp.subtract(camera));
+        Point3d vwp = new Point3d(xVp, yVp, cameraVector.z);
+        Point3d diff = new Point3d(vwp.subtract(camera));
         for(Triangle tr: triangles){
 
             long start = System.currentTimeMillis();
-            Point3D intersect = tr.getIntersection(camera, vwp, diff);
+            Point3d intersect = tr.getIntersection(camera, vwp, diff);
             start = System.currentTimeMillis() - start;
             Long time = times.get("getIntersection");
             if (time == null) time = 0L;
@@ -63,17 +63,17 @@ public class Scene {
             times.put("getIntersection", time);
             if (intersect != null) {
 
-                boolean flgFound = false;
+                //boolean flgFound = false;
                 start = System.currentTimeMillis();
 
                 if (tr.isPointInV2(intersect)) {
-                    //double distance = intersect.subtract(camera).getLength();
-                    double distance = tr.distanceToCamera;
+                    double distance = intersect.subtract(camera).getLength();
+                    //double distance = tr.distanceToCamera;
                     if (distance < minDistance) {
                         minDistance = distance;
                         color = new Color(tr.getColor());
-                        color = color.multiplyIntensity(computeLighting(intersect, tr.getNormal()));
-                        flgFound = true;
+                        color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect)));
+                        //flgFound = true;
                     }
                 }
                 start = System.currentTimeMillis() - start;
@@ -81,22 +81,24 @@ public class Scene {
                 if (time == null) time = 0L;
                 time += start;
                 times.put("isPointInV2", time);
+                /*
                 if (flgFound)
                     break;
+                    */
             }
 
         }
         return color;
     }
 
-    public double computeLighting(Point3D point, Point3D n){
+    public double computeLighting(Point3d point, Point3d n){
         double intensity = 0;
         for(Light light: lights){
 
             if (light.getType() == LightTypes.AIMBIENT){
                 intensity += light.getIntensity();
             }else{
-                Point3D l = new Point3D();
+                Point3d l = new Point3d();
                 switch(light.getType()){
                     case POINT:
                         l = ((PointLight)light).getPosition().subtract(point);
@@ -113,5 +115,6 @@ public class Scene {
         }
         return intensity;
     }
+
 
 }

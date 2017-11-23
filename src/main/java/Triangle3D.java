@@ -1,13 +1,13 @@
 import base.Color;
-import base.Point3D;
+import base.Point3d;
 
 public class Triangle3D {
-    public Point3D a;
-    public Point3D b;
-    public Point3D c;
+    public Point3d a;
+    public Point3d b;
+    public Point3d c;
     private Color color;
 
-    public Triangle3D(Point3D a, Point3D b, Point3D c) {
+    public Triangle3D(Point3d a, Point3d b, Point3d c) {
         this.a = a;
         this.b = b;
         this.c = c;
@@ -15,7 +15,7 @@ public class Triangle3D {
         color = new Color(255, 255, 255);
     }
 
-    public Triangle3D(Point3D a, Point3D b, Point3D c, Color color) {
+    public Triangle3D(Point3d a, Point3d b, Point3d c, Color color) {
         this(a, b, c);
         this.color = color;
     }

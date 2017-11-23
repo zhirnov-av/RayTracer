@@ -1,4 +1,5 @@
-import base.Point3D;
+import base.Point3d;
+import base.Color;
 import lights.AmbientLight;
 import lights.DirectLight;
 import lights.PointLight;
@@ -14,13 +15,15 @@ import java.io.InputStreamReader;
 public class Main extends JFrame{
 
     Scene scene = new Scene();
-    Canvas canvas = new Canvas(500, 500);
+    //Canvas canvas = new Canvas(200, 200);
+    Canvas canvas = new Canvas(900, 900);
     private DrawPanel panel = new DrawPanel(canvas);
+    private Timer timer;
 
     public Main() {
         super("RayTracing...");
 
-        setBounds(200, 200, 300, 300);
+        setBounds(200, 200, canvas.getWidth(), canvas.getHeight());
         setResizable(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -29,6 +32,8 @@ public class Main extends JFrame{
         Container container = getContentPane();
         panel.setDoubleBuffered(true);
         container.add(panel);
+
+        timer = new Timer(250, new TimerListener());
 
         drawScene();
     }
@@ -49,6 +54,13 @@ public class Main extends JFrame{
         setJMenuBar(menu);
     }
 
+    private class TimerListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            panel.repaint(panel.getBounds());
+        }
+    }
+
     private class NewMenuListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
@@ -64,7 +76,8 @@ public class Main extends JFrame{
 
     public void drawScene(){
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        BufferedReader br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("tor_knot.tdf")));
+
+        BufferedReader br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("cube.tdf")));
         try {
             br.readLine();
             int numPoints = Integer.parseInt(br.readLine());
@@ -73,12 +86,12 @@ public class Main extends JFrame{
             for (int i = 0; i < numPoints; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.points.add(new Point3D(Double.parseDouble(arr[0])/10, Double.parseDouble(arr[1])/10, Double.parseDouble(arr[2])/10 + 200));
+                scene.points.add(new Point3d(Double.parseDouble(arr[0])/10, Double.parseDouble(arr[1])/10 - 30, Double.parseDouble(arr[2])/10 + 50));
             }
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.triangles.add(new Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2])));
+                scene.triangles.add(new Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
             }
 
 
@@ -92,27 +105,92 @@ public class Main extends JFrame{
             }
         }
 
+        /*
+        BufferedReader br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("tor_knot.tdf")));
+        try {
+            br.readLine();
+            int numPoints = Integer.parseInt(br.readLine());
+            int numTriangles = Integer.parseInt(br.readLine());
+
+            for (int i = 0; i < numPoints; i++){
+                String strLine = br.readLine().trim();
+                String[] arr = strLine.split("\\s+");
+                scene.points.add(new Point3d(Double.parseDouble(arr[0])/6, Double.parseDouble(arr[1])/6 - 50, Double.parseDouble(arr[2])/6 + 200));
+            }
+            for (int i = 0; i < numTriangles; i++){
+                String strLine = br.readLine().trim();
+                String[] arr = strLine.split("\\s+");
+                scene.triangles.add(new Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        */
+
+        /*
+        int pointOffset = scene.points.size();
+
+        br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));
+        try {
+            br.readLine();
+            int numPoints = Integer.parseInt(br.readLine());
+            int numTriangles = Integer.parseInt(br.readLine());
+
+            for (int i = 0; i < numPoints; i++){
+                String strLine = br.readLine().trim();
+                String[] arr = strLine.split("\\s+");
+                scene.points.add(new Point3d(Double.parseDouble(arr[0]), Double.parseDouble(arr[1]) - 70, Double.parseDouble(arr[2]) + 200));
+            }
+            for (int i = 0; i < numTriangles; i++){
+                String strLine = br.readLine().trim();
+                String[] arr = strLine.split("\\s+");
+                scene.triangles.add(new Triangle(scene, pointOffset+Integer.parseInt(arr[0]), pointOffset+Integer.parseInt(arr[1]), pointOffset+Integer.parseInt(arr[2]), new Color(100, 255, 100)) );
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        */
+
+        for(Triangle triangle: scene.triangles){
+            triangle.doNormalize();
+        }
 
 
         scene.lights.add(new AmbientLight(0.2D));
-        scene.lights.add(new PointLight(0.6D, new Point3D(2D, 1D, 0D)));
-        scene.lights.add(new DirectLight(0.2D, new Point3D(1D, 4D, 4D)));
+        scene.lights.add(new PointLight(0.6D, new Point3d(2D, 800D, 0D)));
+        scene.lights.add(new DirectLight(0.2D, new Point3d(1D, 4D, 4D)));
 
 
 
 
-        //Triangle3D tr = new Triangle3D(new base.Point3D(-1d, 1d, 10d), new base.Point3D(1d, 1d, 10d), new base.Point3D(-1d, -1d, 10d));
+        //Triangle3D tr = new Triangle3D(new base.Point3d(-1d, 1d, 10d), new base.Point3d(1d, 1d, 10d), new base.Point3d(-1d, -1d, 10d));
         /*
-        scene.addTriangle(new Triangle3D(new Point3D(-1d, -1d, 10d), new Point3D(1d, -1d, 10d), new Point3D(-1d, -3d, 10d)));
-        scene.addTriangle(new Triangle3D(new Point3D(1d, -1d, 10d), new Point3D(1d, -3d, 10d), new Point3D(-1d, -3d, 10d)));
-        scene.addTriangle(new Triangle3D(new Point3D(-1d, -1d, 10d), new Point3D(-1d, -1d, 20d), new Point3D(1d, -1d, 10d)));
-        scene.addTriangle(new Triangle3D(new Point3D(-1d, -1d, 20d), new Point3D(1d, -1d, 20d), new Point3D(1d, -1d, 10d)));
+        scene.addTriangle(new Triangle3D(new Point3d(-1d, -1d, 10d), new Point3d(1d, -1d, 10d), new Point3d(-1d, -3d, 10d)));
+        scene.addTriangle(new Triangle3D(new Point3d(1d, -1d, 10d), new Point3d(1d, -3d, 10d), new Point3d(-1d, -3d, 10d)));
+        scene.addTriangle(new Triangle3D(new Point3d(-1d, -1d, 10d), new Point3d(-1d, -1d, 20d), new Point3d(1d, -1d, 10d)));
+        scene.addTriangle(new Triangle3D(new Point3d(-1d, -1d, 20d), new Point3d(1d, -1d, 20d), new Point3d(1d, -1d, 10d)));
         */
+        MainRendererThread rendererThread = new MainRendererThread(canvas, scene);
+        rendererThread.start();
 
-        long start = System.currentTimeMillis();
-        canvas.fillCanvasV2(scene);
-        long end = System.currentTimeMillis();
-        System.out.println(String.format("getIntersection = %d isPointInV2 = %d traceRay = %d fillCanvas = %d", scene.times.get("getIntersection"), scene.times.get("isPointInV2"), scene.times.get("traceRay"), end - start));
+        timer.start();
+
         panel.repaint(panel.getBounds());
     }
 

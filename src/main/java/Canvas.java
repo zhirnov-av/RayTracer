@@ -10,7 +10,7 @@ public class Canvas {
     private Color[][] bitmap;
 
 
-    public Canvas(int height, int width) {
+    public Canvas(int width, int height) {
         this.height = height;
         this.width = width;
         this.halfWidth = this.width / 2;
@@ -57,7 +57,7 @@ public class Canvas {
 
     public void fillCanvasV2(Scene scene){
 
-        TraceThreadStack threadStack = new TraceThreadStack();
+        TraceThreadStack threadStack = new TraceThreadStack(4);
         TraceThread thread;
         for (int y = -height/2; y < height/2; y++){
             thread = threadStack.startNewThread(scene, this, y);
