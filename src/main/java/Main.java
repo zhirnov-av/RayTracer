@@ -15,6 +15,7 @@ public class Main extends JFrame{
 
     Scene scene = new Scene();
     Canvas canvas = new Canvas(1024, 768);
+    //Canvas canvas = new Canvas(100, 100);
     private DrawPanel panel = new DrawPanel(canvas);
     private Timer timer;
 
@@ -98,6 +99,36 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
         }
+
+        int offsetPoints = scene.points.size();
+
+        br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("tor_knot.tdf")));
+        try {
+            br.readLine();
+            int numPoints = Integer.parseInt(br.readLine());
+            int numTriangles = Integer.parseInt(br.readLine());
+
+            for (int i = 0; i < numPoints; i++){
+                String strLine = br.readLine().trim();
+                String[] arr = strLine.split("\\s+");
+                scene.points.add(new Point3D(Double.parseDouble(arr[0])/15, Double.parseDouble(arr[1])/15 - 30, Double.parseDouble(arr[2])/15 + 60));
+            }
+            for (int i = 0; i < numTriangles; i++){
+                String strLine = br.readLine().trim();
+                String[] arr = strLine.split("\\s+");
+                scene.triangles.add(new Triangle(scene, offsetPoints + Integer.parseInt(arr[0]), offsetPoints + Integer.parseInt(arr[1]), offsetPoints + Integer.parseInt(arr[2])));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
 
 
 

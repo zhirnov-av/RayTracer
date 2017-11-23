@@ -63,17 +63,17 @@ public class Scene {
             times.put("getIntersection", time);
             if (intersect != null) {
 
-                boolean flgFound = false;
+                //boolean flgFound = false;
                 start = System.currentTimeMillis();
 
                 if (tr.isPointInV2(intersect)) {
-                    //double distance = intersect.subtract(camera).getLength();
-                    double distance = tr.distanceToCamera;
+                    double distance = intersect.subtract(camera).getLength();
+                    //double distance = tr.distanceToCamera;
                     if (distance < minDistance) {
                         minDistance = distance;
                         color = new Color(tr.getColor());
                         color = color.multiplyIntensity(computeLighting(intersect, tr.getNormal()));
-                        flgFound = true;
+                        //flgFound = true;
                     }
                 }
                 start = System.currentTimeMillis() - start;
@@ -81,8 +81,7 @@ public class Scene {
                 if (time == null) time = 0L;
                 time += start;
                 times.put("isPointInV2", time);
-                if (flgFound)
-                    break;
+                //if (flgFound) break;
             }
 
         }
