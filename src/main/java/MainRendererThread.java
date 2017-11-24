@@ -1,8 +1,11 @@
-public class MainRenderingThread extends Thread {
+
+
+public class MainRendererThread extends Thread {
+
     private Canvas canvas;
     private Scene scene;
 
-    public MainRenderingThread(Canvas canvas, Scene scene){
+    public MainRendererThread(Canvas canvas, Scene scene) {
         this.canvas = canvas;
         this.scene = scene;
     }

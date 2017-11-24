@@ -57,7 +57,7 @@ public class Canvas {
 
     public void fillCanvasV2(Scene scene){
 
-        TraceThreadStack threadStack = new TraceThreadStack(8);
+        TraceThreadStack threadStack = new TraceThreadStack(4);
         TraceThread thread;
         for (int y = -height/2; y < height/2; y++){
             thread = threadStack.startNewThread(scene, this, y);
