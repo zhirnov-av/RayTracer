@@ -135,6 +135,7 @@ public class Main extends JFrame{
             }
         }
 
+
         int pointOffset = scene.points.size();
 
         br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));

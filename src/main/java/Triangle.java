@@ -22,6 +22,9 @@ public class Triangle implements Comparable{
     Point3d n2;
     Point3d n3;
 
+    float d;
+
+
     public Triangle(Scene scene, int v1, int v2, int v3) {
         this.v1 = v1;
         this.v2 = v2;
@@ -39,6 +42,8 @@ public class Triangle implements Comparable{
         this.pv1.nList.add(new Point3d(this.n));
         this.pv2.nList.add(new Point3d(this.n));
         this.pv3.nList.add(new Point3d(this.n));
+
+        this.d = -(pv1.x * n.x + pv1.y * n.y + pv1.z * n.z);
 
         //////////////////////////////////////
         //this.pv1.nx += this.n.x;
@@ -164,6 +169,45 @@ public class Triangle implements Comparable{
     public Point3d getIntersection(Point3d point1, Point3d point2, Point3d w){
         Point3d n = this.n;
         Point3d v = pv1.subtract(point1);
+
+        float sProd = n.sMultiply(point2);
+        if (Math.abs(sProd) < 0.0001f){
+            return null;
+        }
+
+        float k = -(n.x * point1.x + n.y * point1.y + n.z * point1.z + this.d) / sProd;
+
+        if (k < 0.0001f){
+            return null;
+        }
+        float x = point1.x + point2.x * k;
+        float y = point1.y + point2.y * k;
+        float z = point1.z + point2.z * k;
+
+        Point3d intersection = new Point3d(x, y, z);
+
+        if (checkSameClockDir(v_p1_p2, intersection.subtract(pv1), n)
+                && checkSameClockDir(v_p2_p3, intersection.subtract(pv2), n)
+                && checkSameClockDir(v_p3_p1, intersection.subtract(pv3), n)){
+            return intersection;
+        }
+        return null;
+        /*
+        float d = n.sMultiply(v);
+        float e = n.sMultiply(w);
+        if (e != 0){
+            return point1.add(w.multiply(d/e));
+        }else if( d == 0){
+            return null;// Прямая на плоскости
+        }else{
+            return null; // не пересекается
+        }
+        */
+    }
+
+    public Point3d getIntersectionV2(Point3d point1, Point3d point2, Point3d w){
+        Point3d n = this.n;
+        Point3d v = pv1.subtract(point1);
         float d = n.sMultiply(v);
         float e = n.sMultiply(w);
         if (e != 0){
@@ -176,20 +220,19 @@ public class Triangle implements Comparable{
     }
 
     public boolean isPointIn(Point3d point){
-        Point3d tmp1 = scene.points.get(this.v2).subtract(scene.points.get(this.v1));
-        Point3d tmp2 = scene.points.get(this.v2).subtract(point);
-        Point3d v1 = tmp1.vMultiply(tmp2);
 
-        tmp1 = scene.points.get(this.v3).subtract(scene.points.get(this.v2));
-        tmp2 = scene.points.get(this.v3).subtract(point);
-        Point3d v2 = tmp1.vMultiply(tmp2);
 
-        tmp1 = scene.points.get(this.v1).subtract(scene.points.get(this.v3));
-        tmp2 = scene.points.get(this.v1).subtract(point);
-        Point3d v3 = tmp1.vMultiply(tmp2);
-
-        return ((v1.sMultiply(v2)*v1.sMultiply(v3)) > 0.0d);
+        return false;
     }
+
+    public boolean checkSameClockDir(Point3d v1, Point3d v2, Point3d norm) {
+        Point3d norm_v1_v2 = v2.vMultiply(v1);
+        if(norm_v1_v2.sMultiply(norm) < 0)
+            return false;
+        else
+            return true;
+    }
+
 
     public boolean isPointInV2(Point3d point){
         Point3d v1 = pv2.subtract(pv1).vMultiply(point.subtract(pv1));

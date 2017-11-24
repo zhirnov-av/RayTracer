@@ -111,6 +111,7 @@ public class Color {
     }
 
     public Color multiplyIntensity(double v) {
+
         this.r *= v;
         this.g *= v;
         this.b *= v;
