@@ -1,21 +1,22 @@
 package lights;
 
 
-import base.Point3d;
+import base.Vector3d;
+import base.Vertex3d;
 
 public class PointLight extends Light{
-    protected Point3d position;
+    protected Vector3d position;
 
     public PointLight(double intensity) {
         super(intensity, LightTypes.POINT);
-        this.position = new Point3d();
+        this.position = new Vector3d();
     }
-    public PointLight(double intensity, Point3d point) {
+    public PointLight(double intensity, Vector3d point) {
         super(intensity, LightTypes.POINT);
         this.position = point;
     }
 
-    public Point3d getPosition() {
+    public Vector3d getPosition() {
         return position;
     }
 }
