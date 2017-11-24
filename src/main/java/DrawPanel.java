@@ -20,6 +20,9 @@ public class DrawPanel extends JPanel {
             for (int y = 0; y < canvas.getHeight(); y++){
                 try {
                     Color cl = canvas.getBitmap()[x][y];
+                    if (cl.getR() > 255) cl.setR(255);
+                    if (cl.getG() > 255) cl.setG(255);
+                    if (cl.getB() > 255) cl.setB(255);
                     int col = (cl.getR() << 16) | (cl.getG() << 8) | cl.getB();
                     img.setRGB(x, y, col);
                 }catch (Exception e){

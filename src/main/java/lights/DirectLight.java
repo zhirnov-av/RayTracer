@@ -1,22 +1,23 @@
 package lights;
 
 
-import base.Point3d;
+import base.Vector3d;
+import base.Vertex3d;
 
 public class DirectLight extends Light {
 
-    Point3d target;
+    Vector3d target;
 
     public DirectLight(double intensity) {
         super(intensity, LightTypes.DIRECTED);
-        this.target = new Point3d();
+        this.target = new Vector3d();
     }
-    public DirectLight(double intensity, Point3d target) {
+    public DirectLight(double intensity, Vector3d target) {
         super(intensity, LightTypes.DIRECTED);
         this.target = target;
     }
 
-    public Point3d getTarget() {
+    public Vector3d getTarget() {
         return target;
     }
 }
