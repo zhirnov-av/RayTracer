@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 public class Scene {
-    ArrayList<Vertex3d> points = new ArrayList<>();
-    TreeSet<Triangle> triangles = new TreeSet<>();
+//    ArrayList<Vertex3d> points = new ArrayList<>();
+//    TreeSet<Triangle> triangles = new TreeSet<>();
+    ArrayList<Object3d> objects = new ArrayList<>();
     ArrayList<Light> lights = new ArrayList<>();
     HashMap<String, Long> times = new HashMap<>();
 
@@ -24,25 +25,11 @@ public class Scene {
         lights.add(light);
     }
 
-    public void addTriangle(Triangle3D triangle3D){
-        int indexA = points.indexOf(triangle3D.a);
-        int indexB = points.indexOf(triangle3D.b);
-        int indexC = points.indexOf(triangle3D.c);
-
-        if (indexA < 0) {
-            points.add(triangle3D.a);
-            indexA = points.size() - 1;
-        }
-        if (indexB < 0) {
-            points.add(triangle3D.b);
-            indexB = points.size() - 1;
-        }
-        if (indexC < 0) {
-            points.add(triangle3D.c);
-            indexC = points.size() - 1;
-        }
-        triangles.add(new Triangle(this, indexA, indexB, indexC));
+    public void addObject(Object3d object){
+        object.scene = this;
+        objects.add(object);
     }
+
 
     public Color traceRay(Canvas canvas, int x, int y){
         double minDistance = Double.MAX_VALUE;
@@ -51,37 +38,49 @@ public class Scene {
         float yVp = (float)y * viewPortHeight/(float)canvas.getHeight();
         Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
         Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
-        for(Triangle tr: triangles){
-            long start = System.currentTimeMillis();
-            Vector3d intersect = tr.getIntersection(camera, vwp, diff);
-            start = System.currentTimeMillis() - start;
-            Long time = times.get("getIntersection");
-            if (time == null) time = 0L;
-            time += start;
-            times.put("getIntersection", time);
-            if (intersect != null) {
-                boolean flgFound = false;
-                start = System.currentTimeMillis();
-                Vector3d v = MathUtil.subtract(intersect, camera);
-                double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
-                //double distance = tr.distanceToCamera;
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    color = new Color(tr.getColor());
-                    color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
-                    flgFound = true;
+        for(Object3d obj: objects){
+            boolean needToRenderer = false;
+            for( Triangle tr: obj.boundingBox.triangles) {
+                Vector3d intersect = tr.getIntersection(camera, vwp, diff);
+                if (intersect != null){
+                    needToRenderer = true;
+                    break;
                 }
+            }
+            if (!needToRenderer)
+                continue;
+
+            for( Triangle tr: obj.triangles) {
+                long start = System.currentTimeMillis();
+                Vector3d intersect = tr.getIntersection(camera, vwp, diff);
                 start = System.currentTimeMillis() - start;
-                time = times.get("isPointInV2");
+                Long time = times.get("getIntersection");
                 if (time == null) time = 0L;
                 time += start;
-                times.put("isPointInV2", time);
+                times.put("getIntersection", time);
+                if (intersect != null) {
+                    boolean flgFound = false;
+                    start = System.currentTimeMillis();
+                    Vector3d v = MathUtil.subtract(intersect, camera);
+                    double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
+                    //double distance = tr.distanceToCamera;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        color = new Color(tr.getColor());
+                        color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
+                        flgFound = true;
+                    }
+                    start = System.currentTimeMillis() - start;
+                    time = times.get("isPointInV2");
+                    if (time == null) time = 0L;
+                    time += start;
+                    times.put("isPointInV2", time);
 
-                if (flgFound)
-                    break;
+                    if (flgFound)
+                        break;
 
+                }
             }
-
         }
         return color;
     }

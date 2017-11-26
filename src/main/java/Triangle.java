@@ -7,6 +7,7 @@ public class Triangle implements Comparable{
     public int v1;
     public int v2;
     public int v3;
+    private Object object;
     private Scene scene;
     private Color color;
     public Vector3d n;
@@ -27,17 +28,18 @@ public class Triangle implements Comparable{
     float d;
 
 
-    public Triangle(Scene scene, int v1, int v2, int v3) {
+    public Triangle(Object3d object, int v1, int v2, int v3) {
         this.v1 = v1;
         this.v2 = v2;
         this.v3 = v3;
-        this.scene = scene;
+        this.object = object;
+        this.scene = object.scene;
 
         this.color = new Color(255, 255, 255);
 
-        this.pv1 = scene.points.get(v1);
-        this.pv2 = scene.points.get(v2);
-        this.pv3 = scene.points.get(v3);
+        this.pv1 = object.points.get(v1);
+        this.pv2 = object.points.get(v2);
+        this.pv3 = object.points.get(v3);
 
         this.n = computeNormal();
 
@@ -148,8 +150,8 @@ public class Triangle implements Comparable{
         n3.z /= length;
     }
 
-    public Triangle(Scene scene, int v1, int v2, int v3, Color color) {
-        this(scene, v1, v2, v3);
+    public Triangle(Object3d object, int v1, int v2, int v3, Color color) {
+        this(object, v1, v2, v3);
         this.color = color;
     }
 

@@ -1,4 +1,4 @@
-import base.Triangle;
+
 import base.Vector3d;
 import base.Vertex3d;
 import base.Color;
@@ -109,6 +109,9 @@ public class Main extends JFrame{
         }
         */
 
+        Object3d torKnot = new Object3d();
+        scene.addObject(torKnot);
+
         BufferedReader br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("tor_knot.tdf")));
         try {
             br.readLine();
@@ -118,12 +121,12 @@ public class Main extends JFrame{
             for (int i = 0; i < numPoints; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.points.add(new Vertex3d(Float.parseFloat(arr[0])/6, Float.parseFloat(arr[1])/6 - 50, Float.parseFloat(arr[2])/6 + 200));
+                torKnot.points.add(new Vertex3d(Float.parseFloat(arr[0])/6, Float.parseFloat(arr[1])/6 + 30, Float.parseFloat(arr[2])/6 + 200));
             }
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.triangles.add(new Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
+                torKnot.triangles.add(new Triangle(torKnot, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
             }
 
 
@@ -136,9 +139,10 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
         }
+        torKnot.defineBoundings();
 
-
-        int pointOffset = scene.points.size();
+        Object3d tor = new Object3d();
+        scene.addObject(tor);
 
         br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));
         try {
@@ -149,14 +153,13 @@ public class Main extends JFrame{
             for (int i = 0; i < numPoints; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.points.add(new Vertex3d(Float.parseFloat(arr[0]), Float.parseFloat(arr[1]) - 70, Float.parseFloat(arr[2]) + 200));
+                tor.points.add(new Vertex3d(Float.parseFloat(arr[0]), Float.parseFloat(arr[1]) - 70, Float.parseFloat(arr[2]) + 200));
             }
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.triangles.add(new Triangle(scene, pointOffset+Integer.parseInt(arr[0]), pointOffset+Integer.parseInt(arr[1]), pointOffset+Integer.parseInt(arr[2]), new Color(100, 255, 100)) );
+                tor.triangles.add(new Triangle(tor, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(100, 255, 100)) );
             }
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -167,19 +170,21 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
         }
+        tor.defineBoundings();
 
-
-        for(Triangle triangle: scene.triangles){
-            triangle.updateNomrs();
+        for (Object3d obj: scene.objects) {
+            for (Triangle triangle : obj.triangles) {
+                triangle.updateNomrs();
+            }
+            for (Triangle triangle : obj.triangles) {
+                triangle.doNormalize();
+            }
         }
-        for(Triangle triangle: scene.triangles){
-            triangle.doNormalize();
-        }
 
 
-        scene.lights.add(new AmbientLight(0.2D));
-        scene.lights.add(new PointLight(0.6D, new Vector3d(2f, 800f, 0f)));
-        scene.lights.add(new DirectLight(0.2D, new Vector3d(1f, 4f, 4f)));
+        scene.lights.add(new AmbientLight(0.1d));
+        scene.lights.add(new PointLight(0.6D, new Vector3d(2f, 100f, 400f)));
+        scene.lights.add(new DirectLight(0.2D, new Vector3d(0f, 4f, 4f)));
 
 
 
