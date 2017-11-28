@@ -172,7 +172,7 @@ public class Triangle implements Comparable{
         return this.n;
     }
 
-    public Vector3d getIntersection(Vector3d point1, Vector3d point2, Vector3d w){
+    public Vector3d getIntersection(Vector3d point1, Vector3d point2){
         Vector3d n = this.n;
         Vector3d v = MathUtil.subtract(pv1.p, point1);  // Vertex3d v = pv1.subtract(point1);
         float sProd = MathUtil.dotProduct(n, point2);   // float sProd = n.sMultiply(point2);

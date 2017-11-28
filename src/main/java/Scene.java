@@ -15,7 +15,7 @@ public class Scene {
     ArrayList<Light> lights = new ArrayList<>();
     HashMap<String, Long> times = new HashMap<>();
 
-    Vector3d camera = new Vector3d(0f, 00f, 0f);
+    Vector3d camera = new Vector3d(0f, 00f, -100f);
     float viewPortWidth = 1;
     float viewPortHeight = 1;
     Vector3d cameraVector = new Vector3d(0f, -100f, 1f);
@@ -41,7 +41,7 @@ public class Scene {
         for(Object3d obj: objects){
             boolean needToRenderer = false;
             for( Triangle tr: obj.boundingBox.triangles) {
-                Vector3d intersect = tr.getIntersection(camera, vwp, diff);
+                Vector3d intersect = tr.getIntersection(camera, vwp);
                 if (intersect != null){
                     needToRenderer = true;
                     break;
@@ -52,7 +52,7 @@ public class Scene {
 
             for( Triangle tr: obj.triangles) {
                 long start = System.currentTimeMillis();
-                Vector3d intersect = tr.getIntersection(camera, vwp, diff);
+                Vector3d intersect = tr.getIntersection(camera, vwp);
                 start = System.currentTimeMillis() - start;
                 Long time = times.get("getIntersection");
                 if (time == null) time = 0L;
@@ -133,7 +133,37 @@ public class Scene {
     }
     */
 
+    public Vector3d findIntersection(Vector3d from, Vector3d to) {
 
+        for(Object3d obj: objects){
+            boolean needToRenderer = false;
+            for( Triangle tr: obj.boundingBox.triangles) {
+                Vector3d intersect = tr.getIntersection(from, to);
+                if (intersect != null){
+                    needToRenderer = true;
+                    break;
+                }
+            }
+            if (!needToRenderer)
+                continue;
+
+            for( Triangle tr: obj.triangles) {
+                long start = System.currentTimeMillis();
+
+                Vector3d intersect = tr.getIntersection(from, to);
+
+                start = System.currentTimeMillis() - start;
+                Long time = times.get("getIntersection");
+                if (time == null) time = 0L;
+                time += start;
+                times.put("getIntersection", time);
+
+                if (intersect != null)
+                    return intersect;
+            }
+        }
+        return null;
+    }
 
     public double computeLighting(Vector3d point, Vector3d n, Vector3d v){
         double intensity = 0;
@@ -151,6 +181,14 @@ public class Scene {
                         l = ((DirectLight)light).getTarget();
                         break;
                 }
+
+                /*
+                Vector3d intersect = findIntersection(point, l);
+                if (intersect != null){
+                    continue;
+                }
+                */
+
                 double tmp = MathUtil.dotProduct(n,l);
                 if (tmp > 0){
                     intensity += intensity * tmp / (MathUtil.module(n) * MathUtil.module(l));
@@ -163,6 +201,7 @@ public class Scene {
                 if (rDotV > 0d){
                     intensity += light.getIntensity() * Math.pow(rDotV/(MathUtil.module(r)*MathUtil.module(v)), s);
                 }
+
 
             }
         }

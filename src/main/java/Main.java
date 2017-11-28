@@ -183,8 +183,8 @@ public class Main extends JFrame{
 
 
         scene.lights.add(new AmbientLight(0.1d));
-        scene.lights.add(new PointLight(0.6D, new Vector3d(2f, 100f, 400f)));
-        scene.lights.add(new DirectLight(0.2D, new Vector3d(0f, 4f, 4f)));
+        scene.lights.add(new PointLight(0.6D, new Vector3d(0f, 100f, 0f)));
+        scene.lights.add(new DirectLight(0.2D, new Vector3d(0f, 0f, 200f)));
 
 
 
