@@ -1,6 +1,6 @@
 
-import base.Vector3d;
-import base.Vertex3d;
+import base.*;
+import base.Canvas;
 import base.Color;
 import lights.AmbientLight;
 import lights.DirectLight;
@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 public class Main extends JFrame{
 
     Scene scene = new Scene();
-    //Canvas canvas = new Canvas(200, 200);
+    //base.Canvas canvas = new base.Canvas(200, 200);
     Canvas canvas = new Canvas(900, 900);
     private DrawPanel panel = new DrawPanel(canvas);
     private Timer timer;
@@ -94,7 +94,7 @@ public class Main extends JFrame{
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.triangles.add(new Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
+                scene.triangles.add(new base.Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
             }
 
 
@@ -139,7 +139,7 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
         }
-        torKnot.defineBoundings();
+        torKnot.defineBoundingBox();
 
         Object3d tor = new Object3d();
         scene.addObject(tor);
@@ -170,7 +170,7 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
         }
-        tor.defineBoundings();
+        tor.defineBoundingBox();
 
         for (Object3d obj: scene.objects) {
             for (Triangle triangle : obj.triangles) {
@@ -182,19 +182,19 @@ public class Main extends JFrame{
         }
 
 
-        scene.lights.add(new AmbientLight(0.1d));
-        scene.lights.add(new PointLight(0.6D, new Vector3d(2f, 100f, 400f)));
-        scene.lights.add(new DirectLight(0.2D, new Vector3d(0f, 4f, 4f)));
+        scene.addLight(new AmbientLight(0.1d));
+        scene.addLight(new PointLight(0.6D, new Vector3d(2f, 100f, 400f)));
+        scene.addLight(new DirectLight(0.2D, new Vector3d(0f, 4f, 4f)));
 
 
 
 
-        //Triangle3D tr = new Triangle3D(new base.Vertex3d(-1d, 1d, 10d), new base.Vertex3d(1d, 1d, 10d), new base.Vertex3d(-1d, -1d, 10d));
+        //base.Triangle3D tr = new base.Triangle3D(new base.Vertex3d(-1d, 1d, 10d), new base.Vertex3d(1d, 1d, 10d), new base.Vertex3d(-1d, -1d, 10d));
         /*
-        scene.addTriangle(new Triangle3D(new Vertex3d(-1d, -1d, 10d), new Vertex3d(1d, -1d, 10d), new Vertex3d(-1d, -3d, 10d)));
-        scene.addTriangle(new Triangle3D(new Vertex3d(1d, -1d, 10d), new Vertex3d(1d, -3d, 10d), new Vertex3d(-1d, -3d, 10d)));
-        scene.addTriangle(new Triangle3D(new Vertex3d(-1d, -1d, 10d), new Vertex3d(-1d, -1d, 20d), new Vertex3d(1d, -1d, 10d)));
-        scene.addTriangle(new Triangle3D(new Vertex3d(-1d, -1d, 20d), new Vertex3d(1d, -1d, 20d), new Vertex3d(1d, -1d, 10d)));
+        scene.addTriangle(new base.Triangle3D(new Vertex3d(-1d, -1d, 10d), new Vertex3d(1d, -1d, 10d), new Vertex3d(-1d, -3d, 10d)));
+        scene.addTriangle(new base.Triangle3D(new Vertex3d(1d, -1d, 10d), new Vertex3d(1d, -3d, 10d), new Vertex3d(-1d, -3d, 10d)));
+        scene.addTriangle(new base.Triangle3D(new Vertex3d(-1d, -1d, 10d), new Vertex3d(-1d, -1d, 20d), new Vertex3d(1d, -1d, 10d)));
+        scene.addTriangle(new base.Triangle3D(new Vertex3d(-1d, -1d, 20d), new Vertex3d(1d, -1d, 20d), new Vertex3d(1d, -1d, 10d)));
         */
         MainRendererThread rendererThread = new MainRendererThread(canvas, scene);
         rendererThread.start();

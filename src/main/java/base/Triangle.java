@@ -1,21 +1,18 @@
-import base.Color;
-import base.MathUtil;
-import base.Vector3d;
-import base.Vertex3d;
+package base;
 
 public class Triangle implements Comparable{
     public int v1;
     public int v2;
     public int v3;
-    private Object object;
+    private Object3d object;
     private Scene scene;
     private Color color;
     public Vector3d n;
     public float distanceToCamera;
 
-    Vertex3d pv1;
-    Vertex3d pv2;
-    Vertex3d pv3;
+    public Vertex3d pv1;
+    public Vertex3d pv2;
+    public Vertex3d pv3;
 
     Vector3d v_p1_p2;
     Vector3d v_p2_p3;
@@ -49,52 +46,11 @@ public class Triangle implements Comparable{
 
         this.d = -(pv1.p.x * n.x + pv1.p.y * n.y + pv1.p.z * n.z);
 
-        //////////////////////////////////////
-        //this.pv1.nx += this.n.x;
-        //this.pv1.ny += this.n.y;
-        //this.pv1.nz += this.n.z;
-
-        //Vertex3d tmp = new Vertex3d(this.pv1.nx, this.pv1.ny, this.pv1.nz);
-        //float module = tmp.getLength();
-
-        //this.pv1.nx /= module;
-        //this.pv1.ny /= module;
-        //this.pv1.nz /= module;
-        
-        //n1 = new Vertex3d(this.pv1.nx, this.pv1.ny, this.pv1.nz);
-
-        //////////////////////////////////////
-        //this.pv2.nx += this.n.x;
-        //this.pv2.ny += this.n.y;
-        //this.pv2.nz += this.n.z;
-
-        //module = new Vertex3d(this.pv2.nx, this.pv2.ny, this.pv2.nz).getLength();
-
-        //this.pv2.nx /= module;
-        //this.pv2.ny /= module;
-        //this.pv2.nz /= module;
-
-        //n2 = new Vertex3d(this.pv2.nx, this.pv2.ny, this.pv2.nz);
-
-        //////////////////////////////////////
-        //this.pv3.nx += this.n.x;
-        //this.pv3.ny += this.n.y;
-        //this.pv3.nz += this.n.z;
-
-        //tmp = new Vertex3d(this.pv3.nx, this.pv3.ny, this.pv3.nz);
-        //module = tmp.getLength();
-
-        //this.pv3.nx /= module;
-        //this.pv3.ny /= module;
-        //this.pv3.nz /= module;
-
-        //n3 = new Vertex3d(this.pv3.nx, this.pv3.ny, this.pv3.nz);
 
         this.v_p1_p2 = MathUtil.subtract(pv1.p, pv2.p);
         this.v_p2_p3 = MathUtil.subtract(pv2.p, pv3.p); // pv2.subtract(pv3);
         this.v_p3_p1 = MathUtil.subtract(pv3.p, pv1.p); // pv3.subtract(pv1);
 
-        //this.distanceToCamera = this.pv1.subtract(scene.camera).getLength();
         Vector3d v = MathUtil.subtract(scene.camera, this.pv1.p);
         this.distanceToCamera = v.x * v.x + v.y * v.y + v.z * v.z;
     }
@@ -156,6 +112,10 @@ public class Triangle implements Comparable{
     }
 
     public Vector3d computeNormal(){
+        pv1 = object.points.get(v1);
+        pv2 = object.points.get(v2);
+        pv3 = object.points.get(v3);
+
         Vector3d a1 = MathUtil.subtract(pv2.p, pv1.p);
         Vector3d b1 = MathUtil.subtract(pv3.p, pv1.p);
         Vector3d n = MathUtil.crossProduct(a1, b1);
@@ -172,7 +132,7 @@ public class Triangle implements Comparable{
         return this.n;
     }
 
-    public Vector3d getIntersection(Vector3d point1, Vector3d point2, Vector3d w){
+    public Vector3d getIntersection(Vector3d point1, Vector3d point2){
         Vector3d n = this.n;
         Vector3d v = MathUtil.subtract(pv1.p, point1);  // Vertex3d v = pv1.subtract(point1);
         float sProd = MathUtil.dotProduct(n, point2);   // float sProd = n.sMultiply(point2);

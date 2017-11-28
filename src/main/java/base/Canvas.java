@@ -1,4 +1,9 @@
+package base;
+
 import base.Color;
+import base.Scene;
+import base.threads.TraceThread;
+import base.threads.TraceThreadStack;
 import exceptions.RayTracerException;
 
 public class Canvas {

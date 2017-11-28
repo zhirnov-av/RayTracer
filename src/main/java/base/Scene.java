@@ -1,4 +1,6 @@
-import base.*;
+package base;
+
+
 import lights.DirectLight;
 import lights.Light;
 import lights.LightTypes;
@@ -6,14 +8,13 @@ import lights.PointLight;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 public class Scene {
 //    ArrayList<Vertex3d> points = new ArrayList<>();
-//    TreeSet<Triangle> triangles = new TreeSet<>();
-    ArrayList<Object3d> objects = new ArrayList<>();
+//    TreeSet<base.Triangle> triangles = new TreeSet<>();
+    public ArrayList<Object3d> objects = new ArrayList<>();
     ArrayList<Light> lights = new ArrayList<>();
-    HashMap<String, Long> times = new HashMap<>();
+    public HashMap<String, Long> times = new HashMap<>();
 
     Vector3d camera = new Vector3d(0f, 00f, 0f);
     float viewPortWidth = 1;
@@ -41,7 +42,7 @@ public class Scene {
         for(Object3d obj: objects){
             boolean needToRenderer = false;
             for( Triangle tr: obj.boundingBox.triangles) {
-                Vector3d intersect = tr.getIntersection(camera, vwp, diff);
+                Vector3d intersect = tr.getIntersection(camera, vwp);
                 if (intersect != null){
                     needToRenderer = true;
                     break;
@@ -52,7 +53,7 @@ public class Scene {
 
             for( Triangle tr: obj.triangles) {
                 long start = System.currentTimeMillis();
-                Vector3d intersect = tr.getIntersection(camera, vwp, diff);
+                Vector3d intersect = tr.getIntersection(camera, vwp);
                 start = System.currentTimeMillis() - start;
                 Long time = times.get("getIntersection");
                 if (time == null) time = 0L;
@@ -86,14 +87,14 @@ public class Scene {
     }
 
     /*
-    public Color traceRayV2(Canvas canvas, int x, int y){
+    public Color traceRayV2(base.Canvas canvas, int x, int y){
         double minDistance = Double.MAX_VALUE;
         Color color = null;
         float xVp = (float)x * viewPortWidth/(float)canvas.getWidth();
         float yVp = (float)y * viewPortHeight/(float)canvas.getHeight();
         Vertex3d vwp = new Vertex3d(xVp, yVp, cameraVector.z);
         Vertex3d diff = new Vertex3d(vwp.subtract(camera));
-        for(Triangle tr: triangles){
+        for(base.Triangle tr: triangles){
 
             long start = System.currentTimeMillis();
             Vertex3d intersect = tr.getIntersection(camera, vwp, diff);

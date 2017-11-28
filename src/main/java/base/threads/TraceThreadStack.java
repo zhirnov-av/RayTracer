@@ -1,4 +1,8 @@
-import exceptions.RayTracerException;
+package base.threads;
+
+import base.Canvas;
+import base.Scene;
+import base.threads.TraceThread;
 
 public class TraceThreadStack {
 

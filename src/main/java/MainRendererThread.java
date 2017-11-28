@@ -1,4 +1,5 @@
-
+import base.Canvas;
+import base.Scene;
 
 public class MainRendererThread extends Thread {
 
