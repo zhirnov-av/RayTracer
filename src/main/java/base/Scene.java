@@ -171,7 +171,6 @@ public class Scene extends AbstractObject{
     }
 
     public ArrayList<TreeNode> fillListNodes(Canvas canvas, int x, int y, TreeNode node, ArrayList<TreeNode> list){
-        //if (node.getElement().innerTriangles.size() == 0) return list;
         if (isNodeIntersected(x, y, node)){
             if (node.isHasChild()) {
                 list = fillListNodes(canvas, x, y, node.getLeft(), list);
@@ -200,7 +199,7 @@ public class Scene extends AbstractObject{
         float yVp = (float)y * dHeight;
         Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
 
-
+        Vector3d minusVwp = MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp);
 
         //Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
 
@@ -232,7 +231,7 @@ public class Scene extends AbstractObject{
                         if (distance < minDistance) {
                             minDistance = distance;
                             color = new Color(tr.getColor());
-                            color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
+                            color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp));
                         }
 
                     }

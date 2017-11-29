@@ -123,7 +123,7 @@ public class Main extends JFrame{
             for (int i = 0; i < numPoints; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                torKnot.points.add(new Vertex3d(Float.parseFloat(arr[0])/6, Float.parseFloat(arr[1])/6 + 30, Float.parseFloat(arr[2])/6 + 200));
+                torKnot.points.add(new Vertex3d(Float.parseFloat(arr[0])/6, Float.parseFloat(arr[1])/6, Float.parseFloat(arr[2])/6 + 200));
             }
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
@@ -145,6 +145,7 @@ public class Main extends JFrame{
         torKnot.defineBoundingBox();
 
 
+
         Object3d tor = new Object3d();
         tor.setScene(scene);
         br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));
@@ -156,7 +157,7 @@ public class Main extends JFrame{
             for (int i = 0; i < numPoints; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                tor.points.add(new Vertex3d(Float.parseFloat(arr[0]), Float.parseFloat(arr[1]) - 70, Float.parseFloat(arr[2]) + 200));
+                tor.points.add(new Vertex3d(Float.parseFloat(arr[0]), Float.parseFloat(arr[1]) - 50, Float.parseFloat(arr[2]) + 200));
             }
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
@@ -176,6 +177,7 @@ public class Main extends JFrame{
         scene.addObject(tor);
         tor.defineBoundingBox();
 
+
         for (Object3d obj: scene.objects) {
             for (Triangle triangle : obj.triangles) {
                 triangle.updateNomrs();
@@ -193,10 +195,10 @@ public class Main extends JFrame{
         nodes = scene.fillListNodes(canvas, -2, 0, scene.bBoxes.getRoot(), nodes);
 
 
-        scene.addLight(new AmbientLight(0.1d));
-        scene.addLight(new PointLight(0.6D, new Vector3d(2f, 100f, 400f)));
-        scene.addLight(new PointLight(0.6D, new Vector3d(0f, 0f, -50f)));
-        scene.addLight(new DirectLight(0.2D, new Vector3d(0f, 4f, 4f)));
+        scene.addLight(new AmbientLight(0.2d));
+        scene.addLight(new PointLight(0.6D, new Vector3d(2f, 400f, 100f)));
+        scene.addLight(new PointLight(0.9D, new Vector3d(0f, 0f, -50f)));
+        //scene.addLight(new DirectLight(0.8D, new Vector3d(0f, 4f, 4f)));
 
 
 
