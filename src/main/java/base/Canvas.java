@@ -51,7 +51,7 @@ public class Canvas {
                 if ( l == null ) l = 0L;
 
                 long start = System.currentTimeMillis();
-                Color cl = scene.traceRay(this, x, y);
+                Color cl = scene.traceRayV2(x, y);
                 l += (System.currentTimeMillis() - start);
 
                 scene.times.put("traceRay", l);
@@ -77,7 +77,9 @@ public class Canvas {
 
         TraceThreadStack threadStack = new TraceThreadStack(8);
         TraceThread thread;
-        for (int y = -height/2; y < height/2; y++){
+        int startY = -height/2;
+        int endY = height/2;
+        for (int y = startY; y < endY; y++){
             thread = threadStack.startNewThread(scene, this, y);
             thread.start();
         }

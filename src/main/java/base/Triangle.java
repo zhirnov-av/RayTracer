@@ -131,6 +131,12 @@ public class Triangle implements Comparable{
         n3.z /= length;
     }
 
+    public void doNormalizeSt(){
+        n1 = n;
+        n2 = n;
+        n3 = n;
+    }
+
     public Triangle(Object3d object, int v1, int v2, int v3, Color color) {
         this(object, v1, v2, v3);
         this.color = color;

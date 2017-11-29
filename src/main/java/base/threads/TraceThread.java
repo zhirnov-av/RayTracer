@@ -16,13 +16,15 @@ public class TraceThread extends Thread {
 
     @Override
     public void run(){
-        for(int i = 0; i < canvas.getWidth(); i++){
+        int width = canvas.getWidth();
+        int halfWidth = canvas.getWidth() / 2;
+        for(int i = 0; i < width; i++){
             //Long l = scene.times.get("traceRay");
             //if ( l == null ) l = 0L;
 
-            int x = i - canvas.getWidth() / 2;
+            int x = i - halfWidth;
             //long start = System.currentTimeMillis();
-            Color cl = scene.traceRayV2(canvas, x, y);
+            Color cl = scene.traceRayV2(x, y);
             //l += (System.currentTimeMillis() - start);
 
             //scene.times.put("traceRay", l);

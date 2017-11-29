@@ -25,9 +25,13 @@ public class Scene extends AbstractObject{
     ArrayList<Light> lights = new ArrayList<>();
     public HashMap<String, Long> times = new HashMap<>();
 
-    Vector3d camera = new Vector3d(0f, 00f, 0f);
+    Vector3d camera = new Vector3d(0f, 0f, -100f);
     float viewPortWidth = 1;
     float viewPortHeight = 1;
+
+    float dWidth = 0;
+    float dHeight = 0;
+
     Vector3d cameraVector = new Vector3d(0f, -100f, 1f);
     Canvas canvas;
 
@@ -47,8 +51,54 @@ public class Scene extends AbstractObject{
 
     }
 
+    public Color traceRayOld(int x, int y){
+        double minDistance = Double.MAX_VALUE;
+        Color color = null;
+        float xVp = (float)x * viewPortWidth/(float)canvas.getWidth();
+        float yVp = (float)y * viewPortHeight/(float)canvas.getHeight();
+        Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
+        Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
 
-    public Color traceRay(Canvas canvas, int x, int y){
+
+
+        for(Object3d obj: objects){
+            for( Triangle tr: obj.triangles) {
+                long start = System.currentTimeMillis();
+                Vector3d intersect = tr.getIntersection(camera, vwp);
+                start = System.currentTimeMillis() - start;
+                Long time = times.get("getIntersection");
+                if (time == null) time = 0L;
+                time += start;
+                times.put("getIntersection", time);
+                if (intersect != null) {
+                    boolean flgFound = false;
+                    start = System.currentTimeMillis();
+                    Vector3d v = MathUtil.subtract(intersect, camera);
+                    double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
+                    //double distance = tr.distanceToCamera;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        color = new Color(tr.getColor());
+                        color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
+                        flgFound = true;
+                    }
+                    start = System.currentTimeMillis() - start;
+                    time = times.get("isPointInV2");
+                    if (time == null) time = 0L;
+                    time += start;
+                    times.put("isPointInV2", time);
+
+                    /*
+                    if (flgFound)
+                        break;
+                    */
+                }
+            }
+        }
+        return color;
+    }
+
+    public Color traceRay(int x, int y){
         double minDistance = Double.MAX_VALUE;
         Color color = null;
         float xVp = (float)x * viewPortWidth/(float)canvas.getWidth();
@@ -106,13 +156,10 @@ public class Scene extends AbstractObject{
         return color;
     }
 
-    public boolean isNodeIntersected(Canvas canvas, int x, int y, TreeNode node){
-        double minDistance = Double.MAX_VALUE;
-        Color color = null;
-        float xVp = (float)x * viewPortWidth/(float)canvas.getWidth();
-        float yVp = (float)y * viewPortHeight/(float)canvas.getHeight();
+    public boolean isNodeIntersected(int x, int y, TreeNode node){
+        float xVp = (float)x * dWidth;
+        float yVp = (float)y * dHeight;
         Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
-        Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
 
         for( Triangle tr: node.getElement().triangles) {
             Vector3d intersect = tr.getIntersection(camera, vwp);
@@ -124,8 +171,8 @@ public class Scene extends AbstractObject{
     }
 
     public ArrayList<TreeNode> fillListNodes(Canvas canvas, int x, int y, TreeNode node, ArrayList<TreeNode> list){
-
-        if (isNodeIntersected(canvas,x, y, node)){
+        //if (node.getElement().innerTriangles.size() == 0) return list;
+        if (isNodeIntersected(x, y, node)){
             if (node.isHasChild()) {
                 list = fillListNodes(canvas, x, y, node.getLeft(), list);
                 list = fillListNodes(canvas, x, y, node.getRight(), list);
@@ -133,59 +180,64 @@ public class Scene extends AbstractObject{
                 if (list == null){
                     list = new ArrayList<>();
                 }
-                list.add(node);
+                if (node.getElement().innerTriangles.size() > 0)
+                    list.add(node);
             }
-
         }
         return list;
     }
 
-    public Color traceRayV2(Canvas canvas, int x, int y){
+    public void prepareTracing(Canvas canvas){
+        this.canvas = canvas;
+        this.dWidth = viewPortWidth/(float)canvas.getWidth();
+        this.dHeight = viewPortHeight/(float)canvas.getHeight();
+    }
+
+    public Color traceRayV2(int x, int y){
         double minDistance = Double.MAX_VALUE;
         Color color = null;
-        float xVp = (float)x * viewPortWidth/(float)canvas.getWidth();
-        float yVp = (float)y * viewPortHeight/(float)canvas.getHeight();
+        float xVp = (float)x * dWidth;
+        float yVp = (float)y * dHeight;
         Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
-        Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
+
+
+
+        //Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
 
         ArrayList<TreeNode> nodesToRendering = null;
         nodesToRendering = fillListNodes(canvas, x, y, bBoxes.getRoot(), nodesToRendering);
 
         if (nodesToRendering != null) {
             for (TreeNode node : nodesToRendering) {
-
-                for (Triangle tr : node.getElement().innerTriangles) {
-                    long start = System.currentTimeMillis();
+                /*
+                for (Triangle tr : node.getElement().triangles) {
                     Vector3d intersect = tr.getIntersection(camera, vwp);
-                    start = System.currentTimeMillis() - start;
-                    Long time = times.get("getIntersection");
-                    if (time == null) time = 0L;
-                    time += start;
-                    times.put("getIntersection", time);
                     if (intersect != null) {
-                        boolean flgFound = false;
-                        start = System.currentTimeMillis();
                         Vector3d v = MathUtil.subtract(intersect, camera);
                         double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
-                        //double distance = tr.distanceToCamera;
                         if (distance < minDistance) {
                             minDistance = distance;
                             color = new Color(tr.getColor());
                             color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
-                            flgFound = true;
                         }
-                        start = System.currentTimeMillis() - start;
-                        time = times.get("isPointInV2");
-                        if (time == null) time = 0L;
-                        time += start;
-                        times.put("isPointInV2", time);
 
-                        /*
-                        if (flgFound)
-                            break;
-                        */
                     }
                 }
+                */
+                for (Triangle tr : node.getElement().innerTriangles) {
+                    Vector3d intersect = tr.getIntersection(camera, vwp);
+                    if (intersect != null) {
+                        Vector3d v = MathUtil.subtract(intersect, camera);
+                        double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            color = new Color(tr.getColor());
+                            color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
+                        }
+
+                    }
+                }
+
             }
         }
         return color;
@@ -264,12 +316,13 @@ public class Scene extends AbstractObject{
                 }
 
 
-                double s = 10d;
+                double s = 50d;
                 Vector3d r = MathUtil.subtract(MathUtil.multiply(n, 2 * MathUtil.dotProduct(n, l)), l);
                 double rDotV = MathUtil.dotProduct(r, v);
                 if (rDotV > 0d){
                     intensity += light.getIntensity() * Math.pow(rDotV/(MathUtil.module(r)*MathUtil.module(v)), s);
                 }
+
 
             }
         }
@@ -282,11 +335,43 @@ public class Scene extends AbstractObject{
         boundingBox.defineBoundings(triangles);
 
         bBoxes = new BinaryTree(boundingBox);
-        divideBoundingBoxByPlane(this.boundingBox, "X", bBoxes.getRoot());
-        divideBoundingBoxByPlane(bBoxes.getRoot().getLeft().getElement(), "Y", bBoxes.getRoot().getLeft());
-        divideBoundingBoxByPlane(bBoxes.getRoot().getRight().getElement(), "Y", bBoxes.getRoot().getRight());
+        TreeNode root = bBoxes.getRoot();
 
+        buildTree(boundingBox, root, "X");
 
+        /*
+        for(int i = 0; i < 10; i++) {
+            divideBoundingBoxByPlane(this.boundingBox, "X", root);
+            divideBoundingBoxByPlane(bBoxes.getRoot().getLeft().getElement(), "Y", bBoxes.getRoot().getLeft());
+            divideBoundingBoxByPlane(bBoxes.getRoot().getRight().getElement(), "Y", bBoxes.getRoot().getRight());
+        }
+        */
+
+        /*
+        divideBoundingBoxByPlane(bBoxes.getRoot().getLeft().getLeft().getElement(), "Z", bBoxes.getRoot().getLeft().getLeft());
+        divideBoundingBoxByPlane(bBoxes.getRoot().getLeft().getRight().getElement(), "Z", bBoxes.getRoot().getLeft().getRight());
+
+        divideBoundingBoxByPlane(bBoxes.getRoot().getRight().getLeft().getElement(), "Z", bBoxes.getRoot().getRight().getLeft());
+        divideBoundingBoxByPlane(bBoxes.getRoot().getRight().getRight().getElement(), "Z", bBoxes.getRoot().getRight().getRight());
+
+        */
+    }
+
+    public static void buildTree(BoundingBox box, TreeNode root, String plane){
+        String newPlane;
+        if (plane.equals("X")){
+            newPlane = "Y";
+        }else if(plane.equals("Y")){
+            newPlane = "Z";
+        }else{
+            newPlane = "X";
+        }
+        if (root.getLevel() == 9) {
+            return;
+        }
+        divideBoundingBoxByPlane(box, plane, root);
+        buildTree(root.getLeft().getElement(), root.getLeft(), newPlane);
+        buildTree(root.getRight().getElement(), root.getRight(), newPlane);
     }
 
 
@@ -307,30 +392,34 @@ public class Scene extends AbstractObject{
             boxes[0].maxZ = boundingBox.maxZ;
 
 
-            boxes[0].points.add(new Vertex3d(minX, boundingBox.minY, boundingBox.minZ));
-            boxes[0].points.add(new Vertex3d(minX, boundingBox.maxY, boundingBox.minZ));
-            boxes[0].points.add(new Vertex3d(maxX, boundingBox.maxY, boundingBox.minZ));
-            boxes[0].points.add(new Vertex3d(maxX, boundingBox.minY, boundingBox.minZ));
+            boxes[0].points.add(new Vertex3d(minX, boundingBox.minY, boundingBox.minZ)); // 0
+            boxes[0].points.add(new Vertex3d(minX, boundingBox.maxY, boundingBox.minZ)); // 1
+            boxes[0].points.add(new Vertex3d(maxX, boundingBox.maxY, boundingBox.minZ)); // 2
+            boxes[0].points.add(new Vertex3d(maxX, boundingBox.minY, boundingBox.minZ)); // 3
 
-            boxes[0].points.add(new Vertex3d(minX, boundingBox.minY, boundingBox.maxZ));
-            boxes[0].points.add(new Vertex3d(minX, boundingBox.maxY, boundingBox.maxZ));
-            boxes[0].points.add(new Vertex3d(maxX, boundingBox.maxY, boundingBox.maxZ));
-            boxes[0].points.add(new Vertex3d(maxX, boundingBox.minY, boundingBox.maxZ));
+            boxes[0].points.add(new Vertex3d(minX, boundingBox.minY, boundingBox.maxZ)); // 4
+            boxes[0].points.add(new Vertex3d(minX, boundingBox.maxY, boundingBox.maxZ)); // 5
+            boxes[0].points.add(new Vertex3d(maxX, boundingBox.maxY, boundingBox.maxZ)); // 6
+            boxes[0].points.add(new Vertex3d(maxX, boundingBox.minY, boundingBox.maxZ)); // 7
 
             boxes[0].triangles.add(new Triangle(boxes[0], 0, 1, 2));
             boxes[0].triangles.add(new Triangle(boxes[0], 2, 3, 0));
-            boxes[0].triangles.add(new Triangle(boxes[0], 6, 7, 4));
-            boxes[0].triangles.add(new Triangle(boxes[0], 6, 4, 5));
-            boxes[0].triangles.add(new Triangle(boxes[0], 4, 5, 1));
-            boxes[0].triangles.add(new Triangle(boxes[0], 4, 1, 0));
-            boxes[0].triangles.add(new Triangle(boxes[0], 3, 2, 6));
-            boxes[0].triangles.add(new Triangle(boxes[0], 3, 6, 7));
+            boxes[0].triangles.add(new Triangle(boxes[0], 4, 7, 6));
+            boxes[0].triangles.add(new Triangle(boxes[0], 4, 6, 5));
+            boxes[0].triangles.add(new Triangle(boxes[0], 5, 4, 1));
+            boxes[0].triangles.add(new Triangle(boxes[0], 1, 4, 0));
+            boxes[0].triangles.add(new Triangle(boxes[0], 2, 3, 6));
+            boxes[0].triangles.add(new Triangle(boxes[0], 6, 3, 7));
+            boxes[0].triangles.add(new Triangle(boxes[0], 6, 1, 5));
+            boxes[0].triangles.add(new Triangle(boxes[0], 6, 2, 1));
+            boxes[0].triangles.add(new Triangle(boxes[0], 4, 3, 7));
+            boxes[0].triangles.add(new Triangle(boxes[0], 4, 0, 3));
 
             for (Triangle tr: boxes[0].triangles){
                 tr.updateNomrs();
             }
             for (Triangle tr: boxes[0].triangles){
-                tr.doNormalize();
+                tr.doNormalizeSt();
             }
 
             minX = maxX;
@@ -362,12 +451,16 @@ public class Scene extends AbstractObject{
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 1, 0));
             boxes[1].triangles.add(new Triangle(boxes[1], 3, 2, 6));
             boxes[1].triangles.add(new Triangle(boxes[1], 3, 6, 7));
+            boxes[1].triangles.add(new Triangle(boxes[1], 6, 1, 5));
+            boxes[1].triangles.add(new Triangle(boxes[1], 6, 2, 1));
+            boxes[1].triangles.add(new Triangle(boxes[1], 4, 3, 7));
+            boxes[1].triangles.add(new Triangle(boxes[1], 4, 0, 3));
 
             for (Triangle tr: boxes[1].triangles){
                 tr.updateNomrs();
             }
             for (Triangle tr: boxes[1].triangles){
-                tr.doNormalize();
+                tr.doNormalizeSt();
             }
 
         }else if(plane.equals("Y")){
@@ -400,11 +493,15 @@ public class Scene extends AbstractObject{
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 1, 0));
             boxes[0].triangles.add(new Triangle(boxes[0], 3, 2, 6));
             boxes[0].triangles.add(new Triangle(boxes[0], 3, 6, 7));
+            boxes[0].triangles.add(new Triangle(boxes[0], 6, 1, 5));
+            boxes[0].triangles.add(new Triangle(boxes[0], 6, 2, 1));
+            boxes[0].triangles.add(new Triangle(boxes[0], 4, 3, 7));
+            boxes[0].triangles.add(new Triangle(boxes[0], 4, 0, 3));
             for (Triangle tr: boxes[0].triangles){
                 tr.updateNomrs();
             }
             for (Triangle tr: boxes[0].triangles){
-                tr.doNormalize();
+                tr.doNormalizeSt();
             }
 
             minY = maxY;
@@ -436,12 +533,16 @@ public class Scene extends AbstractObject{
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 1, 0));
             boxes[1].triangles.add(new Triangle(boxes[1], 3, 2, 6));
             boxes[1].triangles.add(new Triangle(boxes[1], 3, 6, 7));
+            boxes[1].triangles.add(new Triangle(boxes[1], 6, 1, 5));
+            boxes[1].triangles.add(new Triangle(boxes[1], 6, 2, 1));
+            boxes[1].triangles.add(new Triangle(boxes[1], 4, 3, 7));
+            boxes[1].triangles.add(new Triangle(boxes[1], 4, 0, 3));
 
             for (Triangle tr: boxes[1].triangles){
                 tr.updateNomrs();
             }
             for (Triangle tr: boxes[1].triangles){
-                tr.doNormalize();
+                tr.doNormalizeSt();
             }
 
         }else if(plane.equals("Z")){
@@ -475,12 +576,16 @@ public class Scene extends AbstractObject{
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 1, 0));
             boxes[0].triangles.add(new Triangle(boxes[0], 3, 2, 6));
             boxes[0].triangles.add(new Triangle(boxes[0], 3, 6, 7));
+            boxes[0].triangles.add(new Triangle(boxes[0], 6, 1, 5));
+            boxes[0].triangles.add(new Triangle(boxes[0], 6, 2, 1));
+            boxes[0].triangles.add(new Triangle(boxes[0], 4, 3, 7));
+            boxes[0].triangles.add(new Triangle(boxes[0], 4, 0, 3));
 
             for (Triangle tr: boxes[0].triangles){
                 tr.updateNomrs();
             }
             for (Triangle tr: boxes[0].triangles){
-                tr.doNormalize();
+                tr.doNormalizeSt();
             }
 
             minZ = maxZ;
@@ -512,12 +617,16 @@ public class Scene extends AbstractObject{
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 1, 0));
             boxes[1].triangles.add(new Triangle(boxes[1], 3, 2, 6));
             boxes[1].triangles.add(new Triangle(boxes[1], 3, 6, 7));
+            boxes[1].triangles.add(new Triangle(boxes[1], 6, 1, 5));
+            boxes[1].triangles.add(new Triangle(boxes[1], 6, 2, 1));
+            boxes[1].triangles.add(new Triangle(boxes[1], 4, 3, 7));
+            boxes[1].triangles.add(new Triangle(boxes[1], 4, 0, 3));
 
             for (Triangle tr: boxes[1].triangles){
                 tr.updateNomrs();
             }
             for (Triangle tr: boxes[1].triangles){
-                tr.doNormalize();
+                tr.doNormalizeSt();
             }
         }
 
@@ -533,21 +642,34 @@ public class Scene extends AbstractObject{
     }
 
     public static boolean isInBoundingBox(BoundingBox box, Triangle tr){
-        if (    tr.pv1.p.x <= box.maxX && tr.pv1.p.x >= box.minX &&
-                tr.pv1.p.y <= box.maxY && tr.pv1.p.y >= box.minY &&
-                tr.pv1.p.z <= box.maxZ && tr.pv1.p.z >= box.minZ){
+
+        float x = ( tr.pv1.p.x + tr.pv2.p.x + tr.pv3.p.x ) / 3;
+        float y = ( tr.pv1.p.y + tr.pv2.p.y + tr.pv3.p.y ) / 3;
+        float z = ( tr.pv1.p.z + tr.pv2.p.z + tr.pv3.p.z ) / 3;
+
+        if (    x <= box.maxX + 3 && x >= box.minX - 3 &&
+                y <= box.maxY + 3 && y >= box.minY - 3 &&
+                z <= box.maxZ - 3 && z >= box.minZ - 3){
             return true;
         }
-        if (    tr.pv2.p.x <= box.maxX && tr.pv2.p.x >= box.minX &&
-                tr.pv2.p.y <= box.maxY && tr.pv2.p.y >= box.minY &&
-                tr.pv2.p.z <= box.maxZ && tr.pv2.p.z >= box.minZ){
+
+
+        if (    tr.pv1.p.x <= box.maxX + 3 && tr.pv1.p.x >= box.minX - 3 &&
+                tr.pv1.p.y <= box.maxY + 3 && tr.pv1.p.y >= box.minY - 3 &&
+                tr.pv1.p.z <= box.maxZ + 3 && tr.pv1.p.z >= box.minZ - 3){
             return true;
         }
-        if (    tr.pv3.p.x <= box.maxX && tr.pv3.p.x >= box.minX &&
-                tr.pv3.p.y <= box.maxY && tr.pv3.p.y >= box.minY &&
-                tr.pv3.p.z <= box.maxZ && tr.pv3.p.z >= box.minZ){
+        if (    tr.pv2.p.x <= box.maxX + 3 && tr.pv2.p.x >= box.minX - 3 &&
+                tr.pv2.p.y <= box.maxY + 3 && tr.pv2.p.y >= box.minY - 3 &&
+                tr.pv2.p.z <= box.maxZ + 3 && tr.pv2.p.z >= box.minZ - 3){
             return true;
         }
+        if (    tr.pv3.p.x <= box.maxX + 3 && tr.pv3.p.x >= box.minX - 3 &&
+                tr.pv3.p.y <= box.maxY + 3 && tr.pv3.p.y >= box.minY - 3 &&
+                tr.pv3.p.z <= box.maxZ + 3 && tr.pv3.p.z >= box.minZ - 3){
+            return true;
+        }
+
         return false;
     }
 }

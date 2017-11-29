@@ -4,7 +4,7 @@ import base.*;
 
 import java.util.TreeSet;
 
-public class BoundingBox extends Object3d{
+public class BoundingBox extends AbstractObject{
     AbstractObject object;
     public float minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
 
@@ -88,6 +88,8 @@ public class BoundingBox extends Object3d{
             }
 
         }
+        minX -= 1; minY -= 1; minZ -= 1;
+        maxX += 1; maxY += 1; maxZ += 1;
 
         this.points.add(new Vertex3d(minX, minY, minZ));
         this.points.add(new Vertex3d(minX, maxY, minZ));

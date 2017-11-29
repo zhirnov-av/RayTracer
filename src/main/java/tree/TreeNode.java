@@ -49,4 +49,8 @@ public class TreeNode {
         }
         return false;
     }
+
+    public int getLevel() {
+        return level;
+    }
 }
