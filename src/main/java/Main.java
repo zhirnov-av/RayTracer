@@ -5,6 +5,8 @@ import base.Color;
 import lights.AmbientLight;
 import lights.DirectLight;
 import lights.PointLight;
+import tree.BoundingBox;
+import tree.TreeNode;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class Main extends JFrame{
 
@@ -110,8 +113,7 @@ public class Main extends JFrame{
         */
 
         Object3d torKnot = new Object3d();
-        scene.addObject(torKnot);
-
+        torKnot.setScene(scene);
         BufferedReader br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("tor_knot.tdf")));
         try {
             br.readLine();
@@ -139,11 +141,12 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
         }
+        scene.addObject(torKnot);
         torKnot.defineBoundingBox();
 
-        Object3d tor = new Object3d();
-        scene.addObject(tor);
 
+        Object3d tor = new Object3d();
+        tor.setScene(scene);
         br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));
         try {
             br.readLine();
@@ -170,6 +173,7 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
         }
+        scene.addObject(tor);
         tor.defineBoundingBox();
 
         for (Object3d obj: scene.objects) {
@@ -180,6 +184,13 @@ public class Main extends JFrame{
                 triangle.doNormalize();
             }
         }
+
+        scene.defineBoundingBound();
+
+
+        //canvas.fillCanvasV3(scene);
+        ArrayList<TreeNode> nodes = null;
+        nodes = scene.fillListNodes(canvas, -2, 0, scene.bBoxes.getRoot(), nodes);
 
 
         scene.addLight(new AmbientLight(0.1d));

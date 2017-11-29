@@ -5,12 +5,7 @@ import tree.BoundingBox;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-public class Object3d {
-    Scene scene;
-    Vector3d position;
-
-    public ArrayList<Vertex3d> points = new ArrayList<>();
-    public TreeSet<Triangle> triangles = new TreeSet<>();
+public class Object3d extends AbstractObject{
 
 
     BoundingBox boundingBox;

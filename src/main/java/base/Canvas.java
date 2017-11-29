@@ -5,6 +5,9 @@ import base.Scene;
 import base.threads.TraceThread;
 import base.threads.TraceThreadStack;
 import exceptions.RayTracerException;
+import tree.TreeNode;
+
+import java.util.ArrayList;
 
 public class Canvas {
     private int height = 0;
@@ -56,6 +59,16 @@ public class Canvas {
                 if (cl == null)
                     cl = new Color(0, 0, 0);
                 putPixel(x, y, cl);
+            }
+        }
+    }
+
+    public void fillCanvasV3(Scene scene){
+        ArrayList<TreeNode> nodes = null;
+        for (int x = -width/2; x < width/2; x++){
+            for (int y = -height/2; y < height/2; y++){
+                nodes = scene.fillListNodes(this, x, y, scene.bBoxes.getRoot(), nodes);
+                //Color cl = scene.traceRay(this, x, y);
             }
         }
     }

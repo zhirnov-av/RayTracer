@@ -1,10 +1,12 @@
 package base;
 
+import javax.swing.plaf.basic.BasicTreeUI;
+
 public class Triangle implements Comparable{
     public int v1;
     public int v2;
     public int v3;
-    private Object3d object;
+    private AbstractObject object;
     private Scene scene;
     private Color color;
     public Vector3d n;
@@ -25,12 +27,16 @@ public class Triangle implements Comparable{
     float d;
 
 
-    public Triangle(Object3d object, int v1, int v2, int v3) {
+    public Triangle(AbstractObject object, int v1, int v2, int v3) {
         this.v1 = v1;
         this.v2 = v2;
         this.v3 = v3;
         this.object = object;
-        this.scene = object.scene;
+        if (object instanceof Scene){
+            this.scene = (Scene)object;
+        }else {
+            this.scene = object.scene;
+        }
 
         this.color = new Color(255, 255, 255);
 
@@ -51,8 +57,27 @@ public class Triangle implements Comparable{
         this.v_p2_p3 = MathUtil.subtract(pv2.p, pv3.p); // pv2.subtract(pv3);
         this.v_p3_p1 = MathUtil.subtract(pv3.p, pv1.p); // pv3.subtract(pv1);
 
-        Vector3d v = MathUtil.subtract(scene.camera, this.pv1.p);
-        this.distanceToCamera = v.x * v.x + v.y * v.y + v.z * v.z;
+        if (object instanceof Scene) {
+            Vector3d v = MathUtil.subtract(scene.camera, this.pv1.p);
+            this.distanceToCamera = v.x * v.x + v.y * v.y + v.z * v.z;
+        }else{
+            /*
+            if (this.scene != null){
+                Vector3d v = MathUtil.subtract(scene.camera, this.pv1.p);
+                this.distanceToCamera = v.x * v.x + v.y * v.y + v.z * v.z;
+            }
+            */
+        }
+    }
+
+    public Triangle getClone(){
+        Triangle newTr = null;
+        try {
+            newTr = (Triangle)this.clone();
+
+        } catch (CloneNotSupportedException e) {
+        }
+        return newTr;
     }
 
     public void updateNomrs(){

@@ -5,21 +5,27 @@ import base.*;
 import java.util.TreeSet;
 
 public class BoundingBox extends Object3d{
-    Object3d object3d;
+    AbstractObject object;
+    public float minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
 
-    public BoundingBox(Object3d object){
-        this.object3d = object;
-        setScene(object.getScene());
+    public TreeSet<Triangle> innerTriangles = new TreeSet<>();
+
+    public BoundingBox(AbstractObject object){
+        this.object = object;
+    }
+
+    public AbstractObject getObject() {
+        return object;
     }
 
     public void defineBoundings(TreeSet<Triangle> triangles){
 
-        float minX = triangles.first().pv1.p.x;
-        float minY = triangles.first().pv1.p.y;
-        float minZ = triangles.first().pv1.p.z;
-        float maxX = triangles.first().pv1.p.x;
-        float maxY = triangles.first().pv1.p.y;
-        float maxZ = triangles.first().pv1.p.z;
+        minX = triangles.first().pv1.p.x;
+        minY = triangles.first().pv1.p.y;
+        minZ = triangles.first().pv1.p.z;
+        maxX = triangles.first().pv1.p.x;
+        maxY = triangles.first().pv1.p.y;
+        maxZ = triangles.first().pv1.p.z;
 
 
         for (Triangle tr: triangles){
@@ -101,6 +107,8 @@ public class BoundingBox extends Object3d{
         this.triangles.add(new Triangle(this, 4, 1, 0));
         this.triangles.add(new Triangle(this, 3, 2, 6));
         this.triangles.add(new Triangle(this, 3, 6, 7));
+
+        innerTriangles.addAll(triangles);
 
     }
 
