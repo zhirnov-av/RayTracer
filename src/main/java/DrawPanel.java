@@ -1,3 +1,4 @@
+import base.Canvas;
 import base.Color;
 
 import javax.swing.*;
@@ -5,7 +6,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class DrawPanel extends JPanel {
-    private Canvas canvas;
+    private base.Canvas canvas;
 
     public DrawPanel(Canvas canvas){
         super();

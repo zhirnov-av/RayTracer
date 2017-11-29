@@ -1,4 +1,8 @@
+package base.threads;
+
+import base.Canvas;
 import base.Color;
+import base.Scene;
 
 public class TraceThread extends Thread {
     private Canvas canvas;
@@ -13,15 +17,15 @@ public class TraceThread extends Thread {
     @Override
     public void run(){
         for(int i = 0; i < canvas.getWidth(); i++){
-            Long l = scene.times.get("traceRay");
-            if ( l == null ) l = 0L;
+            //Long l = scene.times.get("traceRay");
+            //if ( l == null ) l = 0L;
 
             int x = i - canvas.getWidth() / 2;
-            long start = System.currentTimeMillis();
+            //long start = System.currentTimeMillis();
             Color cl = scene.traceRay(canvas, x, y);
-            l += (System.currentTimeMillis() - start);
+            //l += (System.currentTimeMillis() - start);
 
-            scene.times.put("traceRay", l);
+            //scene.times.put("traceRay", l);
 
             if (cl == null)
                 cl = new Color(0, 0, 0);

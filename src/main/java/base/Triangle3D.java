@@ -1,3 +1,4 @@
+package base;
 
 import base.Color;
 import base.Vertex3d;
