@@ -17,6 +17,6 @@ public class MainRendererThread extends Thread {
         scene.prepareTracing(canvas);
         canvas.fillCanvasV2(scene);
         long end = System.currentTimeMillis();
-        System.out.println(String.format("getIntersection = %d isPointInV2 = %d traceRay = %d fillCanvas = %d", scene.times.get("getIntersection"), scene.times.get("isPointInV2"), scene.times.get("traceRay"), end - start));
+        System.out.println(String.format("paintComponent = %d isPointInV2 = %d traceRay = %d fillCanvas = %d", scene.times.get("paintComponent"), scene.times.get("isPointInV2"), scene.times.get("traceRay"), end - start));
     }
 }

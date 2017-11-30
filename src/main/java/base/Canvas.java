@@ -7,6 +7,9 @@ import base.threads.TraceThreadStack;
 import exceptions.RayTracerException;
 import tree.TreeNode;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
 import java.util.ArrayList;
 
 public class Canvas {
@@ -15,7 +18,9 @@ public class Canvas {
     private int halfWidth = 0;
     private int halfHeight = 0;
 
-    private Color[][] bitmap;
+    private BufferedImage bitmap;
+
+    //private Color[][] bitmap;
 
 
     public Canvas(int width, int height) {
@@ -24,16 +29,24 @@ public class Canvas {
         this.halfWidth = this.width / 2;
         this.halfHeight = this.height / 2;
 
-        this.bitmap = new Color[this.width][this.height];
+        this.bitmap = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        //this.bitmap = new Color[this.width][this.height];
     }
 
     public void putPixel(int x, int y, Color color){
         int convX = halfWidth + x;
-        int convY = halfHeight - y;
-        if (convX >= 0 && convY >= 0 && convX < this.width && convY < this.height)
-            bitmap[convX][convY] = color;
+        int convY = halfHeight - y - 1;
+
+        int r = (color.getR()|255)&255;
+        int g = (color.getG()|255)&255;
+        int b = (color.getB()|255)&255;
+
+        int col = (r << 16) | (g << 8) | b;
+
+        bitmap.setRGB(convX, convY, col);
     }
 
+    /*
     public Color getPixel(int x, int y) throws RayTracerException {
         int convX = x + halfWidth;
         int convY = y + halfHeight;
@@ -42,6 +55,7 @@ public class Canvas {
         else
             throw new RayTracerException("X or Y is out if bounds");
     }
+    */
 
     public void fillCanvas(Scene scene){
         for (int x = -width/2; x < width/2; x++){
@@ -86,7 +100,7 @@ public class Canvas {
     }
 
 
-    public Color[][] getBitmap() {
+    public BufferedImage getBitmap() {
         return bitmap;
     }
 

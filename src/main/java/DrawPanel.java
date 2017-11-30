@@ -1,5 +1,6 @@
 import base.Canvas;
 import base.Color;
+import base.Scene;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,15 +8,21 @@ import java.awt.image.BufferedImage;
 
 public class DrawPanel extends JPanel {
     private base.Canvas canvas;
+    private Scene scene;
 
-    public DrawPanel(Canvas canvas){
+    public DrawPanel(Canvas canvas, Scene scene){
         super();
         this.canvas = canvas;
+        this.scene = scene;
     }
     @Override
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
 
+
+
+        /*
+        Long start = System.currentTimeMillis();
         BufferedImage img = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < canvas.getWidth(); x++){
             for (int y = 0; y < canvas.getHeight(); y++){
@@ -30,9 +37,20 @@ public class DrawPanel extends JPanel {
                 }
             }
         }
+        */
 
+        g.drawImage(canvas.getBitmap(), 0, 0, null);
 
-        g.drawImage(img, 0, 0, null);
+        /*
+        Long time = System.currentTimeMillis() - start;
+
+        Long tm = scene.times.get("paintComponent");
+        if (tm == null)
+            tm = new Long(time);
+        else
+            tm += time;
+        scene.times.put("paintComponent", tm);
+        */
 
     }
 }
