@@ -67,7 +67,7 @@ public class Canvas {
         ArrayList<TreeNode> nodes = null;
         for (int x = -width/2; x < width/2; x++){
             for (int y = -height/2; y < height/2; y++){
-                nodes = scene.fillListNodes(this, x, y, scene.bBoxes.getRoot(), nodes);
+                //nodes = scene.fillListNodes(this, x, y, scene.bBoxes.getRoot(), nodes);
                 //Color cl = scene.traceRay(this, x, y);
             }
         }

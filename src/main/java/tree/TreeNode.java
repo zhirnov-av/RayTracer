@@ -1,6 +1,8 @@
 package tree;
 
-public class TreeNode {
+import base.BoundingBox;
+
+public class TreeNode implements Comparable{
     BoundingBox element;
     TreeNode left;
     TreeNode right;
@@ -52,5 +54,17 @@ public class TreeNode {
 
     public int getLevel() {
         return level;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof TreeNode){
+            TreeNode node = (TreeNode)o;
+            if (node.element.distanceToCamera > this.element.distanceToCamera)
+                return -1;
+            else
+                return 1;
+        }
+        return 0;
     }
 }

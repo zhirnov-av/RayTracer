@@ -1,10 +1,5 @@
 package base;
 
-import tree.BoundingBox;
-
-import java.util.ArrayList;
-import java.util.TreeSet;
-
 public class Object3d extends AbstractObject{
 
 

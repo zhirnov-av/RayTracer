@@ -3,9 +3,7 @@ import base.*;
 import base.Canvas;
 import base.Color;
 import lights.AmbientLight;
-import lights.DirectLight;
 import lights.PointLight;
-import tree.BoundingBox;
 import tree.TreeNode;
 
 import javax.swing.*;
@@ -187,12 +185,16 @@ public class Main extends JFrame{
             }
         }
 
-        scene.defineBoundingBound();
 
+        long startTime = System.currentTimeMillis();
+        scene.defineBoundingBound();
+        long endTime = System.currentTimeMillis();
+
+        System.out.println(String.format("Building tree: %d", endTime - startTime));
 
         //canvas.fillCanvasV3(scene);
-        ArrayList<TreeNode> nodes = null;
-        nodes = scene.fillListNodes(canvas, -2, 0, scene.bBoxes.getRoot(), nodes);
+        //ArrayList<TreeNode> nodes = null;
+        //nodes = scene.fillListNodes(canvas, -2, 0, scene.bBoxes.getRoot(), nodes);
 
 
         scene.addLight(new AmbientLight(0.2d));

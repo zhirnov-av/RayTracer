@@ -1,5 +1,7 @@
 package tree;
 
+import base.BoundingBox;
+
 public class BinaryTree {
     TreeNode root;
 

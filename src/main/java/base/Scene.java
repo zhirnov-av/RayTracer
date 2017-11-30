@@ -6,7 +6,6 @@ import lights.Light;
 import lights.LightTypes;
 import lights.PointLight;
 import tree.BinaryTree;
-import tree.BoundingBox;
 import tree.TreeNode;
 
 import java.util.ArrayList;
@@ -164,20 +163,23 @@ public class Scene extends AbstractObject{
         for( Triangle tr: node.getElement().triangles) {
             Vector3d intersect = tr.getIntersection(camera, vwp);
             if (intersect != null){
+                Vector3d v = MathUtil.subtract(intersect, camera);
+                node.getElement().distanceToCamera = v.x * v.x + v.y * v.y + v.z * v.z;
+
                 return true;
             }
         }
         return false;
     }
 
-    public ArrayList<TreeNode> fillListNodes(Canvas canvas, int x, int y, TreeNode node, ArrayList<TreeNode> list){
+    public TreeSet<TreeNode> fillListNodes(Canvas canvas, int x, int y, TreeNode node, TreeSet<TreeNode> list){
         if (isNodeIntersected(x, y, node)){
             if (node.isHasChild()) {
                 list = fillListNodes(canvas, x, y, node.getLeft(), list);
                 list = fillListNodes(canvas, x, y, node.getRight(), list);
             }else{
                 if (list == null){
-                    list = new ArrayList<>();
+                    list = new TreeSet<>();
                 }
                 if (node.getElement().innerTriangles.size() > 0)
                     list.add(node);
@@ -203,7 +205,7 @@ public class Scene extends AbstractObject{
 
         //Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
 
-        ArrayList<TreeNode> nodesToRendering = null;
+        TreeSet<TreeNode> nodesToRendering = null;
         nodesToRendering = fillListNodes(canvas, x, y, bBoxes.getRoot(), nodesToRendering);
 
         if (nodesToRendering != null) {
@@ -223,6 +225,7 @@ public class Scene extends AbstractObject{
                     }
                 }
                 */
+                boolean isRendered = false;
                 for (Triangle tr : node.getElement().innerTriangles) {
                     Vector3d intersect = tr.getIntersection(camera, vwp);
                     if (intersect != null) {
@@ -232,11 +235,12 @@ public class Scene extends AbstractObject{
                             minDistance = distance;
                             color = new Color(tr.getColor());
                             color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp));
+                            isRendered = true;
                         }
 
                     }
                 }
-
+                if (isRendered) break;
             }
         }
         return color;
@@ -365,7 +369,7 @@ public class Scene extends AbstractObject{
         }else{
             newPlane = "X";
         }
-        if (root.getLevel() == 9) {
+        if (root.getLevel() == 12) {
             return;
         }
         divideBoundingBoxByPlane(box, plane, root);

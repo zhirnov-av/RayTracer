@@ -1,4 +1,4 @@
-package tree;
+package base;
 
 import base.*;
 
@@ -7,6 +7,7 @@ import java.util.TreeSet;
 public class BoundingBox extends AbstractObject{
     AbstractObject object;
     public float minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
+    public double distanceToCamera = 0;
 
     public TreeSet<Triangle> innerTriangles = new TreeSet<>();
 
