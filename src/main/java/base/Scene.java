@@ -369,7 +369,7 @@ public class Scene extends AbstractObject{
         }else{
             newPlane = "X";
         }
-        if (root.getLevel() == 12) {
+        if (root.getLevel() == 9) {
             return;
         }
         divideBoundingBoxByPlane(box, plane, root);

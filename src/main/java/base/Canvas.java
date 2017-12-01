@@ -37,9 +37,15 @@ public class Canvas {
         int convX = halfWidth + x;
         int convY = halfHeight - y - 1;
 
-        int r = (color.getR()|255)&255;
-        int g = (color.getG()|255)&255;
-        int b = (color.getB()|255)&255;
+//        int r = (color.getR()|255)&255;
+//        int g = (color.getG()|255)&255;
+//        int b = (color.getB()|255)&255;
+        int r = color.getR();
+        int g = color.getG();
+        int b = color.getB();
+        if (r > 255) r = 255;
+        if (g > 255) g = 255;
+        if (b > 255) b = 255;
 
         int col = (r << 16) | (g << 8) | b;
 

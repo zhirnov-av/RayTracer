@@ -175,7 +175,7 @@ public class Main extends JFrame{
         scene.addObject(tor);
         tor.defineBoundingBox();
 
-        /*
+
         Object3d tor2 = new Object3d();
         tor.setScene(scene);
         br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));
@@ -206,7 +206,7 @@ public class Main extends JFrame{
         }
         scene.addObject(tor2);
         tor2.defineBoundingBox();
-        */
+        
 
 
         for (Object3d obj: scene.objects) {
