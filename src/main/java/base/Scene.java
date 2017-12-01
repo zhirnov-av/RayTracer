@@ -161,7 +161,12 @@ public class Scene extends AbstractObject{
         Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
 
         for( Triangle tr: node.getElement().triangles) {
+
+            Profiler.init();
             Vector3d intersect = tr.getIntersection(camera, vwp);
+            Profiler.check("Triangle.getIntersection");
+
+
             if (intersect != null){
                 Vector3d v = MathUtil.subtract(intersect, camera);
                 node.getElement().distanceToCamera = v.x * v.x + v.y * v.y + v.z * v.z;
@@ -227,7 +232,10 @@ public class Scene extends AbstractObject{
                 */
                 boolean isRendered = false;
                 for (Triangle tr : node.getElement().innerTriangles) {
+                    Profiler.init();
                     Vector3d intersect = tr.getIntersection(camera, vwp);
+                    Profiler.check("Triangle.getIntersection");
+
                     if (intersect != null) {
                         Vector3d v = MathUtil.subtract(intersect, camera);
                         double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
