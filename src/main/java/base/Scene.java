@@ -175,6 +175,21 @@ public class Scene extends AbstractObject{
         return false;
     }
 
+    public boolean isNodeIntersectedV2(Vector3d from, Vector3d to, TreeNode node){
+        for( Triangle tr: node.getElement().triangles) {
+
+            Vector3d intersect = tr.getIntersection(from, to);
+
+            if (intersect != null){
+                Vector3d v = MathUtil.subtract(intersect, camera);
+                node.getElement().distanceToCamera = v.x * v.x + v.y * v.y + v.z * v.z;
+
+                return true;
+            }
+        }
+        return false;
+    }
+
     public TreeSet<TreeNode> fillListNodes(Canvas canvas, int x, int y, TreeNode node, TreeSet<TreeNode> list){
         Profiler.init("isNodeIntersection");
         boolean ini = isNodeIntersected(x, y, node);
@@ -194,99 +209,255 @@ public class Scene extends AbstractObject{
         return list;
     }
 
+    public TreeSet<TreeNode> fillListNodesV2(Vector3d from, Vector3d to, TreeNode node, TreeSet<TreeNode> list){
+        Profiler.init("isNodeIntersection");
+        boolean ini = isNodeIntersectedV2(from, to, node);
+        Profiler.check("isNodeIntersection");
+        if (ini){
+            if (node.isHasChild()) {
+                list = fillListNodesV2(from, to, node.getLeft(), list);
+                list = fillListNodesV2(from, to, node.getRight(), list);
+            }else{
+                if (list == null){
+                    list = new TreeSet<>();
+                }
+                if (node.getElement().innerTriangles.size() > 0)
+                    list.add(node);
+            }
+        }
+        return list;
+    }
+
+
     public void prepareTracing(Canvas canvas){
         this.canvas = canvas;
         this.dWidth = viewPortWidth/(float)canvas.getWidth();
         this.dHeight = viewPortHeight/(float)canvas.getHeight();
     }
 
-    public Color traceRayV2(int x, int y){
+    public Color getIntersectionColor(Vector3d from, Vector3d to, int depth){
+        //TreeSet<TreeNode> nodesToRendering = null;
+        //nodesToRendering = fillListNodesV2(from, to, bBoxes.getRoot(), nodesToRendering);
+
+        Vector3d intersect = null;
+        double distance;
         double minDistance = Double.MAX_VALUE;
         Color color = null;
-        float xVp = (float)x * dWidth;
-        float yVp = (float)y * dHeight;
-        Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
 
-        Vector3d minusVwp = MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp);
+        Vector3d minusVwp = MathUtil.subtract(from, to);
 
-        //Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
-
-        TreeSet<TreeNode> nodesToRendering = null;
-        Profiler.init("fillListNodes");
-        nodesToRendering = fillListNodes(canvas, x, y, bBoxes.getRoot(), nodesToRendering);
-        Profiler.check("fillListNodes");
-
-        double distance = Double.MAX_VALUE;
-        if (nodesToRendering != null) {
-            for (TreeNode node : nodesToRendering) {
-                /*
-                for (Triangle tr : node.getElement().triangles) {
-                    Vector3d intersect = tr.getIntersection(camera, vwp);
-                    if (intersect != null) {
-                        Vector3d v = MathUtil.subtract(intersect, camera);
-                        double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            color = new Color(tr.getColor());
-                            color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
-                        }
-
-                    }
-                }
-
-                */
+        for(Object3d obj : objects){
+        //if (nodesToRendering != null) {
+            //for (TreeNode node : nodesToRendering) {
                 boolean isRendered = false;
-
-                for (Triangle tr : node.getElement().innerTriangles) {
+                Triangle foundTr = null;
+                Vector3d foundIntersect = null;
+                for (Triangle tr : obj.triangles) {
+                //for (Triangle tr : node.getElement().innerTriangles) {
                     Profiler.init("Triangle.getIntersection");
-                    Vector3d intersect = tr.getIntersection(camera, vwp);
+                    intersect = tr.getIntersection(from, to);
                     Profiler.check("Triangle.getIntersection");
 
                     if (intersect != null) {
-                        Vector3d v = MathUtil.subtract(intersect, camera);
+                        Vector3d v = MathUtil.subtract(intersect, from);
                         distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
                         if (distance < minDistance) {
+                            foundTr = tr;
                             minDistance = distance;
                             color = new Color(tr.getColor());
                             float intensity =  computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
                             color = color.multiplyIntensity(intensity);
+                            foundIntersect = intersect;
                             isRendered = true;
                         }
 
                     }
                 }
 
+                if (foundIntersect != null && depth >= 0 && foundTr != null) {
+                    Vector3d n = foundTr.getNormalInPoint(foundIntersect);
+                    Vector3d dir = MathUtil.subtract(from, to);
+                    Vector3d reflectRay = calcReflectRay(MathUtil.multiply(to, -1f), foundTr.getNormalInPoint(foundIntersect));
+                    Vector3d i = new Vector3d(foundIntersect.x + n.x, foundIntersect.y + n.y, foundIntersect.z + n.z);
+                    Color cl = getIntersectionColor(i, reflectRay, depth-1);
+                    if (cl != null) {
+                        color = color.multiplyIntensity(0.5f);
+                        cl = cl.multiplyIntensity(0.5f);
+                        color = color.addColor(cl);
+                    }
+                }
 
-                if (isRendered) break;
+                //if (isRendered) break;
 
 
-            }
+            //}
         }
 
-        for (Object3d obj : objects) {
-            if (obj.isNeedToRenderer) {
-                for (Triangle tr : obj.triangles) {
-                    Profiler.init("Triangle.getIntersection");
-                    Vector3d intersect = tr.getIntersection(camera, vwp);
-                    Profiler.check("Triangle.getIntersection");
+        /*
+        if (depth >= 2) {
+            for (Object3d obj : objects) {
+                if (obj.isNeedToRenderer) {
+                    for (Triangle tr : obj.triangles) {
+                        Profiler.init("Triangle.getIntersection");
+                        intersect = tr.getIntersection(from, to);
+                        Profiler.check("Triangle.getIntersection");
 
-                    if (intersect != null) {
-                        Vector3d v = MathUtil.subtract(intersect, camera);
-                        distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            color = new Color(tr.getColor());
-                            float intensity = computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
-                            color = color.multiplyIntensity(intensity);
-                            //isRendered = true;
+                        if (intersect != null) {
+                            Vector3d v = MathUtil.subtract(intersect, camera);
+                            distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
+                            if (distance < minDistance) {
+                                minDistance = distance;
+                                color = new Color(tr.getColor());
+                                float intensity = computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
+                                color = color.multiplyIntensity(intensity);
+                            }
+
+                        if (intersect != null && depth >= 0) {
+                            Vector3d reflectRay = calcReflectRay(to, tr.getNormalInPoint(intersect));
+                            Vector3d i = new Vector3d(intersect.x + reflectRay.x, intersect.y + reflectRay.y, intersect.z + reflectRay.z);
+                            Color cl = getIntersectionColor(intersect, reflectRay, depth-1);
+                            if (cl != null) {
+                                color = color.multiplyIntensity(0.5f);
+                                cl = cl.multiplyIntensity(0.5f);
+                                color = color.addColor(cl);
+                            }
                         }
 
+                        }
                     }
                 }
             }
         }
-
+        */
         return color;
+    }
+
+    public Color traceRayV2(int x, int y, int depth){
+        double minDistance = Double.MAX_VALUE;
+        Color color = null;
+        float xVp = (float)x * dWidth;
+        float yVp = (float)y * dHeight;
+        Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
+        Vector3d minusVwp = MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp);
+
+        return getIntersectionColor(camera, vwp, 2);
+
+        //Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
+
+//        TreeSet<TreeNode> nodesToRendering = null;
+//        Profiler.init("fillListNodes");
+//        nodesToRendering = fillListNodes(canvas, x, y, bBoxes.getRoot(), nodesToRendering);
+//        Profiler.check("fillListNodes");
+//
+//        Vector3d intersect = null;
+//
+//        double distance = Double.MAX_VALUE;
+//        if (nodesToRendering != null) {
+//            for (TreeNode node : nodesToRendering) {
+//                /*
+//                for (Triangle tr : node.getElement().triangles) {
+//                    Vector3d intersect = tr.getIntersection(camera, vwp);
+//                    if (intersect != null) {
+//                        Vector3d v = MathUtil.subtract(intersect, camera);
+//                        double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
+//                        if (distance < minDistance) {
+//                            minDistance = distance;
+//                            color = new Color(tr.getColor());
+//                            color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
+//                        }
+//
+//                    }
+//                }
+//
+//                */
+//                boolean isRendered = false;
+//                Triangle foundTr = null;
+//                for (Triangle tr : node.getElement().innerTriangles) {
+//                    Profiler.init("Triangle.getIntersection");
+//                    intersect = tr.getIntersection(camera, vwp);
+//                    foundTr = tr;
+//                    Profiler.check("Triangle.getIntersection");
+//
+//                    if (intersect != null) {
+//                        Vector3d v = MathUtil.subtract(intersect, camera);
+//                        distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
+//                        if (distance < minDistance) {
+//                            minDistance = distance;
+//                            color = new Color(tr.getColor());
+//                            float intensity =  computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
+//                            color = color.multiplyIntensity(intensity);
+//
+//
+//
+//
+//                            isRendered = true;
+//                        }
+//
+//                    }
+//                }
+//
+//
+//                if (isRendered) break;
+//
+//                /*
+//                if (intersect != null) {
+//                    Vector3d reflectRay = calcReflectRay(intersect, foundTr.getNormalInPoint(intersect));
+//
+//                    Vector3d = traceRayV2(intersect, reflectRay);
+//                }
+//                */
+//            }
+//        }
+//
+//        for (Object3d obj : objects) {
+//            if (obj.isNeedToRenderer) {
+//                for (Triangle tr : obj.triangles) {
+//                    Profiler.init("Triangle.getIntersection");
+//                    intersect = tr.getIntersection(camera, vwp);
+//                    Profiler.check("Triangle.getIntersection");
+//
+//                    if (intersect != null) {
+//                        Vector3d v = MathUtil.subtract(intersect, camera);
+//                        distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
+//                        if (distance < minDistance) {
+//                            minDistance = distance;
+//                            color = new Color(tr.getColor());
+//                            float intensity = computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
+//                            color = color.multiplyIntensity(intensity);
+//
+//
+//
+//
+//
+//                            //isRendered = true;
+//                        }
+//
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//
+//        return color;
+    }
+
+    Vector3d calcReflectRay(Vector3d from, Vector3d n){
+
+        Vector3d reflectRay = MathUtil.multiply(n, 2f);
+        float val = MathUtil.dotProduct(n, from);
+        return MathUtil.subtract(MathUtil.multiply(reflectRay, val), from);
+
+        /*
+        float k = 2 * MathUtil.dotProduct(from, n) / MathUtil.dotProduct(n, n);
+
+        float x = from.x - n.x * k;
+        float y = from.y - n.y * k;
+        float z = from.z - n.z * k;
+
+        return new Vector3d(x, y, z);
+        */
+
     }
 
 
@@ -339,30 +510,23 @@ public class Scene extends AbstractObject{
     */
 
     public Vector3d findIntersection(Vector3d from, Vector3d to) {
+        /*
+        TreeSet<TreeNode> nodesToRendering = null;
+        nodesToRendering = fillListNodesV2(from, to, bBoxes.getRoot(), nodesToRendering);
 
-        for(Object3d obj: objects){
-            boolean needToRenderer = false;
-            for( Triangle tr: obj.boundingBox.triangles) {
-                Vector3d intersect = tr.getIntersection(from, to);
-                if (intersect != null){
-                    needToRenderer = true;
-                    break;
+        if (nodesToRendering != null) {
+            for (TreeNode node : nodesToRendering) {
+                for (Triangle tr : node.getElement().innerTriangles) {
+                    Vector3d intersect = tr.getIntersection(from, to);
+                    if (intersect != null)
+                        return intersect;
                 }
             }
-            if (!needToRenderer)
-                continue;
-
-            for( Triangle tr: obj.triangles) {
-                long start = System.currentTimeMillis();
-
+        }
+        */
+        for (Object3d obj : objects){
+            for (Triangle tr : obj.triangles){
                 Vector3d intersect = tr.getIntersection(from, to);
-
-                start = System.currentTimeMillis() - start;
-                Long time = times.get("getIntersection");
-                if (time == null) time = 0L;
-                time += start;
-                times.put("getIntersection", time);
-
                 if (intersect != null)
                     return intersect;
             }
@@ -387,17 +551,17 @@ public class Scene extends AbstractObject{
                         break;
                 }
 
-                /*
                 Vector3d intersect = findIntersection(point, l);
+                //Color cl = getIntersectionColor(point, l, 0);
                 if (intersect != null){
                     continue;
                 }
-                */
 
                 double tmp = MathUtil.dotProduct(n,l);
                 if (tmp > 0){
                     intensity += intensity * tmp / (MathUtil.module(n) * MathUtil.module(l));
                 }
+
 
 
                 float s = 50f;

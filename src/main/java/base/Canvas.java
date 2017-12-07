@@ -91,7 +91,8 @@ public class Canvas {
         for (int x = -width/2; x < width/2; x++){
             for (int y = -height/2; y < height/2; y++){
 
-                Color cl = scene.traceRayV2(x, y);
+                Color cl = scene.traceRayV2(x, y, 0);
+                //Color cl = scene.traceRayV2(x, y);
 
                 if (cl == null)
                     cl = new Color(0, 0, 0);

@@ -24,7 +24,7 @@ public class TraceThread extends Thread {
 
             int x = i - halfWidth;
             //long start = System.currentTimeMillis();
-            Color cl = scene.traceRayV2(x, y);
+            Color cl = scene.traceRayV2(x, y, 0);
             //l += (System.currentTimeMillis() - start);
 
             //scene.times.put("traceRay", l);

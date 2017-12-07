@@ -113,19 +113,19 @@ public class Main extends JFrame{
 
         Object3d torKnot = new Object3d();
         torKnot.setScene(scene);
-        torKnot.loadFromTdf("tor_knot.tdf", 1f/6f, new Vector3d(0, 0, 400), new Color(255, 100, 100));
+        torKnot.loadFromTdf("tor_knot.tdf", 1f/4f, new Vector3d(100, -100, 400), new Color(255, 100, 100));
         torKnot.defineBoundingBox();
         scene.addObject(torKnot);
 
         Object3d tor = new Object3d();
         tor.setScene(scene);
-        tor.loadFromTdf("torus.tdf", 1, new Vector3d(0, -100, 400), new Color(100, 255, 100));
+        tor.loadFromTdf("torus.tdf", 1, new Vector3d(-100, -150, 400), new Color(100, 255, 100));
         tor.defineBoundingBox();
         scene.addObject(tor);
 
         Object3d cube = new Object3d();
         cube.setScene(scene);
-        cube.loadFromTdf("cube.tdf", 10, new Vector3d(0, -550, 600), new Color(100, 255, 100));
+        cube.loadFromTdf("cube.tdf", 10, new Vector3d(0, -550, 600), new Color(100, 100, 255));
         cube.defineBoundingBox();
         cube.isNeedToRenderer = true;
         scene.addObject(cube);
@@ -155,8 +155,9 @@ public class Main extends JFrame{
 
 
         scene.addLight(new AmbientLight(0.2d));
-        scene.addLight(new PointLight(0.6D, new Vector3d(2f, 400f, 100f)));
-        scene.addLight(new PointLight(0.9D, new Vector3d(0f, 0f, -50f)));
+        scene.addLight(new PointLight(0.6D, new Vector3d(-100f, 300f, 40f)));
+        scene.addLight(new PointLight(0.9D, new Vector3d(100f, 400f, 400f)));
+        scene.addLight(new PointLight(0.6D, new Vector3d(0f, 50f, 400f)));
         //scene.addLight(new DirectLight(0.8D, new Vector3d(0f, 4f, 4f)));
 
 
