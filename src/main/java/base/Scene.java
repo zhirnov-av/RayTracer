@@ -338,7 +338,37 @@ public class Scene extends AbstractObject{
     }
     */
 
+    public Vector3d findIntersection(Vector3d from, Vector3d to) {
 
+        for(Object3d obj: objects){
+            boolean needToRenderer = false;
+            for( Triangle tr: obj.boundingBox.triangles) {
+                Vector3d intersect = tr.getIntersection(from, to);
+                if (intersect != null){
+                    needToRenderer = true;
+                    break;
+                }
+            }
+            if (!needToRenderer)
+                continue;
+
+            for( Triangle tr: obj.triangles) {
+                long start = System.currentTimeMillis();
+
+                Vector3d intersect = tr.getIntersection(from, to);
+
+                start = System.currentTimeMillis() - start;
+                Long time = times.get("getIntersection");
+                if (time == null) time = 0L;
+                time += start;
+                times.put("getIntersection", time);
+
+                if (intersect != null)
+                    return intersect;
+            }
+        }
+        return null;
+    }
 
     public float computeLighting(Vector3d point, Vector3d n, Vector3d v){
         float intensity = 0;
@@ -356,6 +386,14 @@ public class Scene extends AbstractObject{
                         l = ((DirectLight)light).getTarget();
                         break;
                 }
+
+                /*
+                Vector3d intersect = findIntersection(point, l);
+                if (intersect != null){
+                    continue;
+                }
+                */
+
                 double tmp = MathUtil.dotProduct(n,l);
                 if (tmp > 0){
                     intensity += intensity * tmp / (MathUtil.module(n) * MathUtil.module(l));
