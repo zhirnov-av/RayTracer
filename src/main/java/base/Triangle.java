@@ -173,7 +173,7 @@ public class Triangle implements Comparable{
 
         float k = -(n.x * point1.x + n.y * point1.y + n.z * point1.z + this.d) / sProd;
 
-        if (k < 0.0001f){
+        if (k < 0.001f){
             return null;
         }
         float x = point1.x + point2.x * k;

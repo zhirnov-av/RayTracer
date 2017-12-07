@@ -19,7 +19,7 @@ public class Main extends JFrame{
 
     Scene scene = new Scene();
     //base.Canvas canvas = new base.Canvas(200, 200);
-    Canvas canvas = new Canvas(900, 900);
+    Canvas canvas = new Canvas(500, 500);
     private DrawPanel panel = new DrawPanel(canvas, scene);
     private Timer timer;
 
@@ -110,70 +110,27 @@ public class Main extends JFrame{
         }
         */
 
+
         Object3d torKnot = new Object3d();
         torKnot.setScene(scene);
-        BufferedReader br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("tor_knot.tdf")));
-        try {
-            br.readLine();
-            int numPoints = Integer.parseInt(br.readLine());
-            int numTriangles = Integer.parseInt(br.readLine());
-
-            for (int i = 0; i < numPoints; i++){
-                String strLine = br.readLine().trim();
-                String[] arr = strLine.split("\\s+");
-                torKnot.points.add(new Vertex3d(Float.parseFloat(arr[0])/6, Float.parseFloat(arr[1])/6, Float.parseFloat(arr[2])/6 + 200));
-            }
-            for (int i = 0; i < numTriangles; i++){
-                String strLine = br.readLine().trim();
-                String[] arr = strLine.split("\\s+");
-                torKnot.triangles.add(new Triangle(torKnot, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        scene.addObject(torKnot);
+        torKnot.loadFromTdf("tor_knot.tdf", 1f/6f, new Vector3d(0, 0, 400), new Color(255, 100, 100));
         torKnot.defineBoundingBox();
-
-
+        scene.addObject(torKnot);
 
         Object3d tor = new Object3d();
         tor.setScene(scene);
-        br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));
-        try {
-            br.readLine();
-            int numPoints = Integer.parseInt(br.readLine());
-            int numTriangles = Integer.parseInt(br.readLine());
-
-            for (int i = 0; i < numPoints; i++){
-                String strLine = br.readLine().trim();
-                String[] arr = strLine.split("\\s+");
-                tor.points.add(new Vertex3d(Float.parseFloat(arr[0]), Float.parseFloat(arr[1]) - 100, Float.parseFloat(arr[2]) + 200));
-            }
-            for (int i = 0; i < numTriangles; i++){
-                String strLine = br.readLine().trim();
-                String[] arr = strLine.split("\\s+");
-                tor.triangles.add(new Triangle(tor, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(100, 255, 100)) );
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        scene.addObject(tor);
+        tor.loadFromTdf("torus.tdf", 1, new Vector3d(0, -100, 400), new Color(100, 255, 100));
         tor.defineBoundingBox();
+        scene.addObject(tor);
+
+        Object3d cube = new Object3d();
+        cube.setScene(scene);
+        cube.loadFromTdf("cube.tdf", 10, new Vector3d(0, -550, 600), new Color(100, 255, 100));
+        cube.defineBoundingBox();
+        cube.isNeedToRenderer = true;
+        scene.addObject(cube);
+
+
 
         /*
         Object3d tor2 = new Object3d();
@@ -245,6 +202,7 @@ public class Main extends JFrame{
         scene.addTriangle(new base.Triangle3D(new Vertex3d(-1d, -1d, 10d), new Vertex3d(-1d, -1d, 20d), new Vertex3d(1d, -1d, 10d)));
         scene.addTriangle(new base.Triangle3D(new Vertex3d(-1d, -1d, 20d), new Vertex3d(1d, -1d, 20d), new Vertex3d(1d, -1d, 10d)));
         */
+
         MainRendererThread rendererThread = new MainRendererThread(canvas, scene);
         rendererThread.start();
 

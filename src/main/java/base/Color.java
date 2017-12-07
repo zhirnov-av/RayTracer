@@ -110,7 +110,7 @@ public class Color {
         return this;
     }
 
-    public Color multiplyIntensity(double v) {
+    public Color multiplyIntensity(float v) {
 
         this.r *= v;
         this.g *= v;
