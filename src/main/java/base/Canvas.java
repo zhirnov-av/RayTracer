@@ -63,25 +63,7 @@ public class Canvas {
     }
     */
 
-    public void fillCanvas(Scene scene){
-        for (int x = -width/2; x < width/2; x++){
-            for (int y = -height/2; y < height/2; y++){
 
-                Long l = scene.times.get("traceRay");
-                if ( l == null ) l = 0L;
-
-                long start = System.currentTimeMillis();
-                Color cl = scene.traceRayV2(x, y);
-                l += (System.currentTimeMillis() - start);
-
-                scene.times.put("traceRay", l);
-
-                if (cl == null)
-                    cl = new Color(0, 0, 0);
-                putPixel(x, y, cl);
-            }
-        }
-    }
 
     public void fillCanvasV3(Scene scene){
         ArrayList<TreeNode> nodes = null;
@@ -105,6 +87,18 @@ public class Canvas {
         }
     }
 
+    public void fillCanvas(Scene scene){
+        for (int x = -width/2; x < width/2; x++){
+            for (int y = -height/2; y < height/2; y++){
+
+                Color cl = scene.traceRayV2(x, y);
+
+                if (cl == null)
+                    cl = new Color(0, 0, 0);
+                putPixel(x, y, cl);
+            }
+        }
+    }
 
     public BufferedImage getBitmap() {
         return bitmap;
