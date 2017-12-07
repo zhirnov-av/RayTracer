@@ -131,41 +131,6 @@ public class Main extends JFrame{
         scene.addObject(cube);
 
 
-
-
-        Object3d tor2 = new Object3d();
-        tor.setScene(scene);
-        br = new BufferedReader( new InputStreamReader(classLoader.getResourceAsStream("torus.tdf")));
-        try {
-            br.readLine();
-            int numPoints = Integer.parseInt(br.readLine());
-            int numTriangles = Integer.parseInt(br.readLine());
-
-            for (int i = 0; i < numPoints; i++){
-                String strLine = br.readLine().trim();
-                String[] arr = strLine.split("\\s+");
-                tor2.points.add(new Vertex3d(Float.parseFloat(arr[0]), Float.parseFloat(arr[1]) + 100, Float.parseFloat(arr[2]) + 200));
-            }
-            for (int i = 0; i < numTriangles; i++){
-                String strLine = br.readLine().trim();
-                String[] arr = strLine.split("\\s+");
-                tor2.triangles.add(new Triangle(tor2, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(100, 100, 255)) );
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        scene.addObject(tor2);
-        tor2.defineBoundingBox();
-        
-
-
         for (Object3d obj: scene.objects) {
             for (Triangle triangle : obj.triangles) {
                 triangle.updateNomrs();
@@ -175,12 +140,14 @@ public class Main extends JFrame{
             }
         }
 
-
         long startTime = System.currentTimeMillis();
         scene.defineBoundingBound();
         long endTime = System.currentTimeMillis();
 
         System.out.println(String.format("Building tree: %d", endTime - startTime));
+
+
+
 
         //canvas.fillCanvasV3(scene);
         //ArrayList<TreeNode> nodes = null;

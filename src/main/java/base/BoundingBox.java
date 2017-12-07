@@ -21,6 +21,8 @@ public class BoundingBox extends AbstractObject{
 
     public void defineBoundings(TreeSet<Triangle> triangles){
 
+
+
         minX = triangles.first().pv1.p.x;
         minY = triangles.first().pv1.p.y;
         minZ = triangles.first().pv1.p.z;
@@ -30,6 +32,10 @@ public class BoundingBox extends AbstractObject{
 
 
         for (Triangle tr: triangles){
+
+            if ((tr.object instanceof Object3d) && ((Object3d)(tr.object)).isNeedToRenderer)
+                continue;
+
             // first point
             if (tr.pv1.p.x < minX){
                 minX = tr.pv1.p.x;

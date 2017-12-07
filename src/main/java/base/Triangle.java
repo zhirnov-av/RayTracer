@@ -6,7 +6,7 @@ public class Triangle implements Comparable{
     public int v1;
     public int v2;
     public int v3;
-    private AbstractObject object;
+    public AbstractObject object;
     private Scene scene;
     private Color color;
     public Vector3d n;
