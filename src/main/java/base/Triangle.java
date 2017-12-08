@@ -260,31 +260,25 @@ public class Triangle implements Comparable{
 
     public Vector3d getNormalInPoint(Vector3d point){
 
-        /*
-        Vertex3d v_p1_p = this.pv1.subtract(point);
-        Vertex3d v_p2_p = this.pv2.subtract(point);
-        Vertex3d v_p3_p = this.pv3.subtract(point);
-        */
-        Vector3d v_p1_p = MathUtil.subtract(point, pv1.p); //point.subtract(this.pv1);
-        Vector3d v_p2_p = MathUtil.subtract(point, pv2.p);
-        Vector3d v_p3_p = MathUtil.subtract(point, pv3.p);
+        if (object instanceof Object3d && ((Object3d)object).usePhongNormals){
+            Vector3d v_p1_p = MathUtil.subtract(point, pv1.p); //point.subtract(this.pv1);
+            Vector3d v_p2_p = MathUtil.subtract(point, pv2.p);
+            Vector3d v_p3_p = MathUtil.subtract(point, pv3.p);
 
-        float s1 = MathUtil.module(MathUtil.crossProduct(v_p2_p, v_p2_p3));
-        float s2 = MathUtil.module(MathUtil.crossProduct(v_p3_p, v_p3_p1));
-        float s3 = MathUtil.module(MathUtil.crossProduct(v_p1_p, v_p1_p2));
+            float s1 = MathUtil.module(MathUtil.crossProduct(v_p2_p, v_p2_p3));
+            float s2 = MathUtil.module(MathUtil.crossProduct(v_p3_p, v_p3_p1));
+            float s3 = MathUtil.module(MathUtil.crossProduct(v_p1_p, v_p1_p2));
 
-        //float s1 = v_p2_p.vMultiply(v_p2_p3).getLength(); // module_vector(cross_product(v_p2_p, tr->v_p2_p3));
-        //float s2 = v_p3_p.vMultiply(v_p3_p1).getLength(); // module_vector(cross_product(v_p3_p, tr->v_p3_p1));
-        //float s3 = v_p1_p.vMultiply(v_p1_p2).getLength(); // module_vector(cross_product(v_p1_p, tr->v_p1_p2));
+            float s_sum = s1 + s2 + s3;
 
-        float s_sum = s1 + s2 + s3;
+            float w1 = s1 / s_sum;
+            float w2 = s2 / s_sum;
+            float w3 = s3 / s_sum;
 
-        float w1 = s1 / s_sum;
-        float w2 = s2 / s_sum;
-        float w3 = s3 / s_sum;
+            return new Vector3d(w1 * n1.x + w2 * n2.x + w3 * n3.x, w1 * n1.y + w2 * n2.y + w3 * n3.y, w1 * n1.z + w2 * n2.z + w3 * n3.z);
+        }
+        return n;
 
-        return new Vector3d(w1 * n1.x + w2 * n2.x + w3 * n3.x, w1 * n1.y + w2 * n2.y + w3 * n3.y, w1 * n1.z + w2 * n2.z + w3 * n3.z);
-        //return n;
     }
 
 

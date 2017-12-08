@@ -9,6 +9,11 @@ public class Object3d extends AbstractObject{
 
     BoundingBox boundingBox;
     public boolean isNeedToRenderer = false;
+
+    public float reflection = 0f;
+    public float specular = 20f;
+    public boolean usePhongNormals = true;
+
     //Object3d boundingBox;
 
     //ArrayList<Vertex3d> boundingPoints = new ArrayList<>();
@@ -16,6 +21,11 @@ public class Object3d extends AbstractObject{
 
     public void setScene(Scene scene){
         this.scene = scene;
+    }
+
+    public void setObjectParam(float reflection, float specular){
+        this.reflection = reflection;
+        this.specular = specular;
     }
 
 

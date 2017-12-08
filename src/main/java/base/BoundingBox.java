@@ -2,6 +2,7 @@ package base;
 
 import base.*;
 
+import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class BoundingBox extends AbstractObject{
@@ -98,27 +99,47 @@ public class BoundingBox extends AbstractObject{
         minX -= 1; minY -= 1; minZ -= 1;
         maxX += 1; maxY += 1; maxZ += 1;
 
-        this.points.add(new Vertex3d(minX, minY, minZ));
-        this.points.add(new Vertex3d(minX, maxY, minZ));
-        this.points.add(new Vertex3d(maxX, maxY, minZ));
-        this.points.add(new Vertex3d(maxX, minY, minZ));
+        this.points.add(new Vertex3d(minX, minY, minZ)); // 0
+        this.points.add(new Vertex3d(minX, maxY, minZ)); // 1
+        this.points.add(new Vertex3d(maxX, maxY, minZ)); // 2
+        this.points.add(new Vertex3d(maxX, minY, minZ)); // 3
 
-        this.points.add(new Vertex3d(minX, minY, maxZ));
-        this.points.add(new Vertex3d(minX, maxY, maxZ));
-        this.points.add(new Vertex3d(maxX, maxY, maxZ));
-        this.points.add(new Vertex3d(maxX, minY, maxZ));
+        this.points.add(new Vertex3d(minX, minY, maxZ)); // 4
+        this.points.add(new Vertex3d(minX, maxY, maxZ)); // 5
+        this.points.add(new Vertex3d(maxX, maxY, maxZ)); // 6
+        this.points.add(new Vertex3d(maxX, minY, maxZ)); // 7
 
-        this.triangles.add(new Triangle(this, 0, 1, 2));
-        this.triangles.add(new Triangle(this, 2, 3, 0));
-        this.triangles.add(new Triangle(this, 6, 7, 4));
-        this.triangles.add(new Triangle(this, 6, 4, 5));
-        this.triangles.add(new Triangle(this, 4, 5, 1));
-        this.triangles.add(new Triangle(this, 4, 1, 0));
-        this.triangles.add(new Triangle(this, 3, 2, 6));
-        this.triangles.add(new Triangle(this, 3, 6, 7));
+        buildBox(this, this.points, this.triangles);
+
+        /*
+        this.triangles.add(new Triangle(this, 0, 1, 2)); // front
+        this.triangles.add(new Triangle(this, 2, 3, 0)); // front
+        this.triangles.add(new Triangle(this, 6, 4, 7)); // back
+        this.triangles.add(new Triangle(this, 6, 5, 4)); // back
+        this.triangles.add(new Triangle(this, 4, 5, 1)); // left
+        this.triangles.add(new Triangle(this, 4, 1, 0)); // left
+        this.triangles.add(new Triangle(this, 3, 2, 6)); // right
+        this.triangles.add(new Triangle(this, 3, 6, 7)); // right
+        this.triangles.add(new Triangle(this, 4, 0, 3)); // bottom
+        this.triangles.add(new Triangle(this, 4, 3, 7)); // bottom
+        */
+
 
         innerTriangles.addAll(triangles);
 
+    }
+
+    public static void buildBox(AbstractObject obj, ArrayList<Vertex3d> points, TreeSet<Triangle> triangles){
+        triangles.add(new Triangle(obj, 0, 1, 2)); // front
+        triangles.add(new Triangle(obj, 2, 3, 0)); // front
+        triangles.add(new Triangle(obj, 6, 4, 7)); // back
+        triangles.add(new Triangle(obj, 6, 5, 4)); // back
+        triangles.add(new Triangle(obj, 4, 5, 1)); // left
+        triangles.add(new Triangle(obj, 4, 1, 0)); // left
+        triangles.add(new Triangle(obj, 3, 2, 6)); // right
+        triangles.add(new Triangle(obj, 3, 6, 7)); // right
+        triangles.add(new Triangle(obj, 4, 0, 3)); // bottom
+        triangles.add(new Triangle(obj, 4, 3, 7)); // bottom
     }
 
 }

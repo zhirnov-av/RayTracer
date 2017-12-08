@@ -24,7 +24,7 @@ public class Scene extends AbstractObject{
     ArrayList<Light> lights = new ArrayList<>();
     public HashMap<String, Long> times = new HashMap<>();
 
-    Vector3d camera = new Vector3d(0f, 0f, -100f);
+    Vector3d camera = new Vector3d(0f, 0f, -200f);
     float viewPortWidth = 1;
     float viewPortHeight = 1;
 
@@ -78,7 +78,7 @@ public class Scene extends AbstractObject{
                     if (distance < minDistance) {
                         minDistance = distance;
                         color = new Color(tr.getColor());
-                        color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
+                        color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp), tr));
                         flgFound = true;
                     }
                     start = System.currentTimeMillis() - start;
@@ -136,7 +136,7 @@ public class Scene extends AbstractObject{
                     if (distance < minDistance) {
                         minDistance = distance;
                         color = new Color(tr.getColor());
-                        color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
+                        color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp), tr));
                         flgFound = true;
                     }
                     start = System.currentTimeMillis() - start;
@@ -236,8 +236,8 @@ public class Scene extends AbstractObject{
     }
 
     public Color getIntersectionColor(Vector3d from, Vector3d to, int depth){
-        //TreeSet<TreeNode> nodesToRendering = null;
-        //nodesToRendering = fillListNodesV2(from, to, bBoxes.getRoot(), nodesToRendering);
+        TreeSet<TreeNode> nodesToRendering = null;
+        nodesToRendering = fillListNodesV2(from, to, bBoxes.getRoot(), nodesToRendering);
 
         Vector3d intersect = null;
         double distance;
@@ -246,14 +246,15 @@ public class Scene extends AbstractObject{
 
         Vector3d minusVwp = MathUtil.subtract(from, to);
 
-        for(Object3d obj : objects){
-        //if (nodesToRendering != null) {
-            //for (TreeNode node : nodesToRendering) {
-                boolean isRendered = false;
+        boolean isRendered = false;
+        //for(Object3d obj : objects){
+        if (nodesToRendering != null) {
+            for (TreeNode node : nodesToRendering) {
                 Triangle foundTr = null;
                 Vector3d foundIntersect = null;
-                for (Triangle tr : obj.triangles) {
-                //for (Triangle tr : node.getElement().innerTriangles) {
+                Vector3d foundN = null;
+                //for (Triangle tr : obj.triangles) {
+                for (Triangle tr : node.getElement().innerTriangles) {
                     Profiler.init("Triangle.getIntersection");
                     intersect = tr.getIntersection(from, to);
                     Profiler.check("Triangle.getIntersection");
@@ -265,7 +266,8 @@ public class Scene extends AbstractObject{
                             foundTr = tr;
                             minDistance = distance;
                             color = new Color(tr.getColor());
-                            float intensity =  computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
+                            foundN = tr.getNormalInPoint(intersect);
+                            float intensity =  computeLighting(intersect, foundN, minusVwp, foundTr);
                             color = color.multiplyIntensity(intensity);
                             foundIntersect = intersect;
                             isRendered = true;
@@ -274,15 +276,13 @@ public class Scene extends AbstractObject{
                     }
                 }
 
-                if (foundIntersect != null && depth >= 0 && foundTr != null) {
-                    Vector3d n = foundTr.getNormalInPoint(foundIntersect);
-                    Vector3d dir = MathUtil.subtract(from, to);
-                    Vector3d reflectRay = calcReflectRay(MathUtil.multiply(to, -1f), foundTr.getNormalInPoint(foundIntersect));
-                    Vector3d i = new Vector3d(foundIntersect.x + n.x, foundIntersect.y + n.y, foundIntersect.z + n.z);
+                if (foundTr != null && ((Object3d)foundTr.object).reflection > 0 && depth >= 0) {
+                    Vector3d reflectRay = calcReflectRay(MathUtil.multiply(to, -1f), foundN);
+                    Vector3d i = new Vector3d(foundIntersect.x + foundN.x, foundIntersect.y + foundN.y, foundIntersect.z + foundN.z);
                     Color cl = getIntersectionColor(i, reflectRay, depth-1);
                     if (cl != null) {
-                        color = color.multiplyIntensity(0.5f);
-                        cl = cl.multiplyIntensity(0.5f);
+                        color = color.multiplyIntensity(1f - ((Object3d)foundTr.object).reflection);
+                        cl = cl.multiplyIntensity(((Object3d)foundTr.object).reflection);
                         color = color.addColor(cl);
                     }
                 }
@@ -290,45 +290,49 @@ public class Scene extends AbstractObject{
                 //if (isRendered) break;
 
 
-            //}
+            }
         }
 
-        /*
-        if (depth >= 2) {
+
+        if (!isRendered) {
             for (Object3d obj : objects) {
                 if (obj.isNeedToRenderer) {
                     for (Triangle tr : obj.triangles) {
                         Profiler.init("Triangle.getIntersection");
                         intersect = tr.getIntersection(from, to);
                         Profiler.check("Triangle.getIntersection");
-
+                        Vector3d foundIntersect = null;
+                        Vector3d foundN = null;
                         if (intersect != null) {
                             Vector3d v = MathUtil.subtract(intersect, camera);
                             distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
                             if (distance < minDistance) {
                                 minDistance = distance;
                                 color = new Color(tr.getColor());
-                                float intensity = computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
+                                foundN = tr.getNormalInPoint(intersect);
+                                float intensity = computeLighting(intersect, foundN, minusVwp, tr);
                                 color = color.multiplyIntensity(intensity);
-                            }
-
-                        if (intersect != null && depth >= 0) {
-                            Vector3d reflectRay = calcReflectRay(to, tr.getNormalInPoint(intersect));
-                            Vector3d i = new Vector3d(intersect.x + reflectRay.x, intersect.y + reflectRay.y, intersect.z + reflectRay.z);
-                            Color cl = getIntersectionColor(intersect, reflectRay, depth-1);
-                            if (cl != null) {
-                                color = color.multiplyIntensity(0.5f);
-                                cl = cl.multiplyIntensity(0.5f);
-                                color = color.addColor(cl);
+                                foundIntersect = intersect;
                             }
                         }
+
+                        if (foundIntersect != null && ((Object3d)tr.object).reflection > 0 && depth >= 0) {
+
+                            Vector3d reflectRay = calcReflectRay(MathUtil.multiply(to, -1f), foundN);
+                            Vector3d i = new Vector3d(foundIntersect.x + foundN.x, foundIntersect.y + foundN.y, foundIntersect.z + foundN.z);
+                            Color cl = getIntersectionColor(i, reflectRay, depth-1);
+                            if (cl != null) {
+                                color = color.multiplyIntensity(1f - ((Object3d)tr.object).reflection);
+                                cl = cl.multiplyIntensity(((Object3d)tr.object).reflection);
+                                color = color.addColor(cl);
+                            }
 
                         }
                     }
                 }
             }
         }
-        */
+
         return color;
     }
 
@@ -342,104 +346,6 @@ public class Scene extends AbstractObject{
 
         return getIntersectionColor(camera, vwp, 2);
 
-        //Vector3d diff = MathUtil.subtract(vwp, camera); // new Vector3d(vwp.subtract(camera));
-
-//        TreeSet<TreeNode> nodesToRendering = null;
-//        Profiler.init("fillListNodes");
-//        nodesToRendering = fillListNodes(canvas, x, y, bBoxes.getRoot(), nodesToRendering);
-//        Profiler.check("fillListNodes");
-//
-//        Vector3d intersect = null;
-//
-//        double distance = Double.MAX_VALUE;
-//        if (nodesToRendering != null) {
-//            for (TreeNode node : nodesToRendering) {
-//                /*
-//                for (Triangle tr : node.getElement().triangles) {
-//                    Vector3d intersect = tr.getIntersection(camera, vwp);
-//                    if (intersect != null) {
-//                        Vector3d v = MathUtil.subtract(intersect, camera);
-//                        double distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
-//                        if (distance < minDistance) {
-//                            minDistance = distance;
-//                            color = new Color(tr.getColor());
-//                            color = color.multiplyIntensity(computeLighting(intersect, tr.getNormalInPoint(intersect), MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp)));
-//                        }
-//
-//                    }
-//                }
-//
-//                */
-//                boolean isRendered = false;
-//                Triangle foundTr = null;
-//                for (Triangle tr : node.getElement().innerTriangles) {
-//                    Profiler.init("Triangle.getIntersection");
-//                    intersect = tr.getIntersection(camera, vwp);
-//                    foundTr = tr;
-//                    Profiler.check("Triangle.getIntersection");
-//
-//                    if (intersect != null) {
-//                        Vector3d v = MathUtil.subtract(intersect, camera);
-//                        distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
-//                        if (distance < minDistance) {
-//                            minDistance = distance;
-//                            color = new Color(tr.getColor());
-//                            float intensity =  computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
-//                            color = color.multiplyIntensity(intensity);
-//
-//
-//
-//
-//                            isRendered = true;
-//                        }
-//
-//                    }
-//                }
-//
-//
-//                if (isRendered) break;
-//
-//                /*
-//                if (intersect != null) {
-//                    Vector3d reflectRay = calcReflectRay(intersect, foundTr.getNormalInPoint(intersect));
-//
-//                    Vector3d = traceRayV2(intersect, reflectRay);
-//                }
-//                */
-//            }
-//        }
-//
-//        for (Object3d obj : objects) {
-//            if (obj.isNeedToRenderer) {
-//                for (Triangle tr : obj.triangles) {
-//                    Profiler.init("Triangle.getIntersection");
-//                    intersect = tr.getIntersection(camera, vwp);
-//                    Profiler.check("Triangle.getIntersection");
-//
-//                    if (intersect != null) {
-//                        Vector3d v = MathUtil.subtract(intersect, camera);
-//                        distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
-//                        if (distance < minDistance) {
-//                            minDistance = distance;
-//                            color = new Color(tr.getColor());
-//                            float intensity = computeLighting(intersect, tr.getNormalInPoint(intersect), minusVwp);
-//                            color = color.multiplyIntensity(intensity);
-//
-//
-//
-//
-//
-//                            //isRendered = true;
-//                        }
-//
-//                    }
-//                }
-//            }
-//        }
-//
-//
-//
-//        return color;
     }
 
     Vector3d calcReflectRay(Vector3d from, Vector3d n){
@@ -457,7 +363,6 @@ public class Scene extends AbstractObject{
 
         return new Vector3d(x, y, z);
         */
-
     }
 
 
@@ -510,7 +415,7 @@ public class Scene extends AbstractObject{
     */
 
     public Vector3d findIntersection(Vector3d from, Vector3d to) {
-        /*
+
         TreeSet<TreeNode> nodesToRendering = null;
         nodesToRendering = fillListNodesV2(from, to, bBoxes.getRoot(), nodesToRendering);
 
@@ -523,7 +428,8 @@ public class Scene extends AbstractObject{
                 }
             }
         }
-        */
+
+        /*
         for (Object3d obj : objects){
             for (Triangle tr : obj.triangles){
                 Vector3d intersect = tr.getIntersection(from, to);
@@ -531,10 +437,11 @@ public class Scene extends AbstractObject{
                     return intersect;
             }
         }
+        */
         return null;
     }
 
-    public float computeLighting(Vector3d point, Vector3d n, Vector3d v){
+    public float computeLighting(Vector3d point, Vector3d n, Vector3d v, Triangle tr){
         float intensity = 0;
         for(Light light: lights){
 
@@ -564,7 +471,7 @@ public class Scene extends AbstractObject{
 
 
 
-                float s = 50f;
+                float s = ((Object3d)(tr.object)).specular;
                 Vector3d r = MathUtil.subtract(MathUtil.multiply(n, 2 * MathUtil.dotProduct(n, l)), l);
                 float rDotV = MathUtil.dotProduct(r, v);
                 if (rDotV > 0d){
@@ -587,22 +494,6 @@ public class Scene extends AbstractObject{
 
         buildTree(boundingBox, root, "X");
 
-        /*
-        for(int i = 0; i < 10; i++) {
-            divideBoundingBoxByPlane(this.boundingBox, "X", root);
-            divideBoundingBoxByPlane(bBoxes.getRoot().getLeft().getElement(), "Y", bBoxes.getRoot().getLeft());
-            divideBoundingBoxByPlane(bBoxes.getRoot().getRight().getElement(), "Y", bBoxes.getRoot().getRight());
-        }
-        */
-
-        /*
-        divideBoundingBoxByPlane(bBoxes.getRoot().getLeft().getLeft().getElement(), "Z", bBoxes.getRoot().getLeft().getLeft());
-        divideBoundingBoxByPlane(bBoxes.getRoot().getLeft().getRight().getElement(), "Z", bBoxes.getRoot().getLeft().getRight());
-
-        divideBoundingBoxByPlane(bBoxes.getRoot().getRight().getLeft().getElement(), "Z", bBoxes.getRoot().getRight().getLeft());
-        divideBoundingBoxByPlane(bBoxes.getRoot().getRight().getRight().getElement(), "Z", bBoxes.getRoot().getRight().getRight());
-
-        */
     }
 
     public static void buildTree(BoundingBox box, TreeNode root, String plane){
@@ -650,6 +541,9 @@ public class Scene extends AbstractObject{
             boxes[0].points.add(new Vertex3d(maxX, boundingBox.maxY, boundingBox.maxZ)); // 6
             boxes[0].points.add(new Vertex3d(maxX, boundingBox.minY, boundingBox.maxZ)); // 7
 
+
+            BoundingBox.buildBox(boxes[0], boxes[0].points, boxes[0].triangles);
+            /*
             boxes[0].triangles.add(new Triangle(boxes[0], 0, 1, 2));
             boxes[0].triangles.add(new Triangle(boxes[0], 2, 3, 0));
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 7, 6));
@@ -662,6 +556,8 @@ public class Scene extends AbstractObject{
             boxes[0].triangles.add(new Triangle(boxes[0], 6, 2, 1));
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 3, 7));
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 0, 3));
+            */
+
 
             for (Triangle tr: boxes[0].triangles){
                 tr.updateNomrs();
@@ -691,6 +587,8 @@ public class Scene extends AbstractObject{
             boxes[1].points.add(new Vertex3d(maxX, boundingBox.maxY, boundingBox.maxZ));
             boxes[1].points.add(new Vertex3d(maxX, boundingBox.minY, boundingBox.maxZ));
 
+            BoundingBox.buildBox(boxes[1], boxes[1].points, boxes[1].triangles);
+            /*
             boxes[1].triangles.add(new Triangle(boxes[1], 0, 1, 2));
             boxes[1].triangles.add(new Triangle(boxes[1], 2, 3, 0));
             boxes[1].triangles.add(new Triangle(boxes[1], 6, 7, 4));
@@ -703,7 +601,7 @@ public class Scene extends AbstractObject{
             boxes[1].triangles.add(new Triangle(boxes[1], 6, 2, 1));
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 3, 7));
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 0, 3));
-
+            */
             for (Triangle tr: boxes[1].triangles){
                 tr.updateNomrs();
             }
@@ -733,6 +631,8 @@ public class Scene extends AbstractObject{
             boxes[0].points.add(new Vertex3d(boundingBox.maxX, maxY, boundingBox.maxZ));
             boxes[0].points.add(new Vertex3d(boundingBox.maxX, minY, boundingBox.maxZ));
 
+            BoundingBox.buildBox(boxes[0], boxes[0].points, boxes[0].triangles);
+            /*
             boxes[0].triangles.add(new Triangle(boxes[0], 0, 1, 2));
             boxes[0].triangles.add(new Triangle(boxes[0], 2, 3, 0));
             boxes[0].triangles.add(new Triangle(boxes[0], 6, 7, 4));
@@ -745,6 +645,7 @@ public class Scene extends AbstractObject{
             boxes[0].triangles.add(new Triangle(boxes[0], 6, 2, 1));
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 3, 7));
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 0, 3));
+            */
             for (Triangle tr: boxes[0].triangles){
                 tr.updateNomrs();
             }
@@ -773,6 +674,8 @@ public class Scene extends AbstractObject{
             boxes[1].points.add(new Vertex3d(boundingBox.maxX, maxY, boundingBox.maxZ));
             boxes[1].points.add(new Vertex3d(boundingBox.maxX, minY, boundingBox.maxZ));
 
+            BoundingBox.buildBox(boxes[1], boxes[1].points, boxes[1].triangles);
+            /*
             boxes[1].triangles.add(new Triangle(boxes[1], 0, 1, 2));
             boxes[1].triangles.add(new Triangle(boxes[1], 2, 3, 0));
             boxes[1].triangles.add(new Triangle(boxes[1], 6, 7, 4));
@@ -785,7 +688,7 @@ public class Scene extends AbstractObject{
             boxes[1].triangles.add(new Triangle(boxes[1], 6, 2, 1));
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 3, 7));
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 0, 3));
-
+            */
             for (Triangle tr: boxes[1].triangles){
                 tr.updateNomrs();
             }
@@ -816,6 +719,9 @@ public class Scene extends AbstractObject{
             boxes[0].points.add(new Vertex3d(boundingBox.maxX, boundingBox.maxY, maxZ));
             boxes[0].points.add(new Vertex3d(boundingBox.maxX, boundingBox.minY, maxZ));
 
+            BoundingBox.buildBox(boxes[0], boxes[0].points, boxes[0].triangles);
+
+            /*
             boxes[0].triangles.add(new Triangle(boxes[0], 0, 1, 2));
             boxes[0].triangles.add(new Triangle(boxes[0], 2, 3, 0));
             boxes[0].triangles.add(new Triangle(boxes[0], 6, 7, 4));
@@ -828,6 +734,7 @@ public class Scene extends AbstractObject{
             boxes[0].triangles.add(new Triangle(boxes[0], 6, 2, 1));
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 3, 7));
             boxes[0].triangles.add(new Triangle(boxes[0], 4, 0, 3));
+            */
 
             for (Triangle tr: boxes[0].triangles){
                 tr.updateNomrs();
@@ -857,6 +764,9 @@ public class Scene extends AbstractObject{
             boxes[1].points.add(new Vertex3d(boundingBox.maxX, boundingBox.maxY, maxZ));
             boxes[1].points.add(new Vertex3d(boundingBox.maxX, boundingBox.minY, maxZ));
 
+            BoundingBox.buildBox(boxes[1], boxes[1].points, boxes[1].triangles);
+
+            /*
             boxes[1].triangles.add(new Triangle(boxes[1], 0, 1, 2));
             boxes[1].triangles.add(new Triangle(boxes[1], 2, 3, 0));
             boxes[1].triangles.add(new Triangle(boxes[1], 6, 7, 4));
@@ -869,7 +779,7 @@ public class Scene extends AbstractObject{
             boxes[1].triangles.add(new Triangle(boxes[1], 6, 2, 1));
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 3, 7));
             boxes[1].triangles.add(new Triangle(boxes[1], 4, 0, 3));
-
+            */
             for (Triangle tr: boxes[1].triangles){
                 tr.updateNomrs();
             }
