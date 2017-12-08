@@ -1,7 +1,5 @@
 package base;
 
-import base.*;
-
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -10,7 +8,7 @@ public class BoundingBox extends AbstractObject{
     public float minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
     public double distanceToCamera = 0;
 
-    public TreeSet<Triangle> innerTriangles = new TreeSet<>();
+    public TreeSet<Primitive> innerTriangles = new TreeSet<>();
 
     public BoundingBox(AbstractObject object){
         this.object = object;
@@ -109,19 +107,19 @@ public class BoundingBox extends AbstractObject{
         this.points.add(new Vertex3d(maxX, maxY, maxZ)); // 6
         this.points.add(new Vertex3d(maxX, minY, maxZ)); // 7
 
-        buildBox(this, this.points, this.triangles);
+        buildBox(this, this.points, this.primitives);
 
         /*
-        this.triangles.add(new Triangle(this, 0, 1, 2)); // front
-        this.triangles.add(new Triangle(this, 2, 3, 0)); // front
-        this.triangles.add(new Triangle(this, 6, 4, 7)); // back
-        this.triangles.add(new Triangle(this, 6, 5, 4)); // back
-        this.triangles.add(new Triangle(this, 4, 5, 1)); // left
-        this.triangles.add(new Triangle(this, 4, 1, 0)); // left
-        this.triangles.add(new Triangle(this, 3, 2, 6)); // right
-        this.triangles.add(new Triangle(this, 3, 6, 7)); // right
-        this.triangles.add(new Triangle(this, 4, 0, 3)); // bottom
-        this.triangles.add(new Triangle(this, 4, 3, 7)); // bottom
+        this.primitives.add(new Triangle(this, 0, 1, 2)); // front
+        this.primitives.add(new Triangle(this, 2, 3, 0)); // front
+        this.primitives.add(new Triangle(this, 6, 4, 7)); // back
+        this.primitives.add(new Triangle(this, 6, 5, 4)); // back
+        this.primitives.add(new Triangle(this, 4, 5, 1)); // left
+        this.primitives.add(new Triangle(this, 4, 1, 0)); // left
+        this.primitives.add(new Triangle(this, 3, 2, 6)); // right
+        this.primitives.add(new Triangle(this, 3, 6, 7)); // right
+        this.primitives.add(new Triangle(this, 4, 0, 3)); // bottom
+        this.primitives.add(new Triangle(this, 4, 3, 7)); // bottom
         */
 
 

@@ -2,13 +2,11 @@ package base;
 
 import javax.swing.plaf.basic.BasicTreeUI;
 
-public class Triangle implements Comparable{
+public class Triangle extends Primitive implements Comparable{
     public int v1;
     public int v2;
     public int v3;
-    public AbstractObject object;
-    private Scene scene;
-    private Color color;
+    //public AbstractObject object;
     public Vector3d n;
     public float distanceToCamera;
 

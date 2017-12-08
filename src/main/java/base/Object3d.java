@@ -8,11 +8,6 @@ public class Object3d extends AbstractObject{
 
 
     BoundingBox boundingBox;
-    public boolean isNeedToRenderer = false;
-
-    public float reflection = 0f;
-    public float specular = 20f;
-    public boolean usePhongNormals = true;
 
     //Object3d boundingBox;
 
@@ -45,7 +40,7 @@ public class Object3d extends AbstractObject{
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                this.triangles.add(new Triangle(this, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), color));
+                this.primitives.add(new Triangle(this, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), color));
             }
 
 
@@ -83,13 +78,13 @@ public class Object3d extends AbstractObject{
             points.add(triangle3D.c);
             indexC = points.size() - 1;
         }
-        triangles.add(new Triangle(this, indexA, indexB, indexC));
+        primitives.add(new Triangle(this, indexA, indexB, indexC));
     }
 
 
     public void defineBoundingBox(){
         boundingBox = new BoundingBox(this);
-        boundingBox.defineBoundings(triangles);
+        boundingBox.defineBoundings(primitives);
     }
 
 

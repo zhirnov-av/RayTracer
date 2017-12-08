@@ -7,6 +7,13 @@ public class AbstractObject {
     Scene scene;
     Vector3d position;
 
+    public boolean isNeedToRenderer = false;
+
+    public float reflection = 0f;
+    public float specular = 20f;
+    public boolean usePhongNormals = true;
+
+
     public ArrayList<Vertex3d> points = new ArrayList<>();
-    public TreeSet<Triangle> triangles = new TreeSet<>();
+    public TreeSet<Primitive> primitives = new TreeSet<>();
 }

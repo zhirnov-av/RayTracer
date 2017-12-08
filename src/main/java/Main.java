@@ -4,22 +4,17 @@ import base.Canvas;
 import base.Color;
 import lights.AmbientLight;
 import lights.PointLight;
-import tree.TreeNode;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 public class Main extends JFrame{
 
     Scene scene = new Scene();
     //base.Canvas canvas = new base.Canvas(200, 200);
-    Canvas canvas = new Canvas(500, 500);
+    Canvas canvas = new Canvas(900, 900);
     private DrawPanel panel = new DrawPanel(canvas, scene);
     private Timer timer;
 
@@ -95,7 +90,7 @@ public class Main extends JFrame{
             for (int i = 0; i < numTriangles; i++){
                 String strLine = br.readLine().trim();
                 String[] arr = strLine.split("\\s+");
-                scene.triangles.add(new base.Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
+                scene.primitives.add(new base.Triangle(scene, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), new Color(255, 100, 100)));
             }
 
 
@@ -113,7 +108,7 @@ public class Main extends JFrame{
 
         Object3d torKnot = new Object3d();
         torKnot.setScene(scene);
-        torKnot.loadFromTdf("tor_knot.tdf", 1f/4f, new Vector3d(0, -100, 500), new Color(255, 100, 100));
+        torKnot.loadFromTdf("tor_knot.tdf", 1f/4f, new Vector3d(50, -100, 400), new Color(255, 100, 100));
         torKnot.defineBoundingBox();
         torKnot.setObjectParam(0.3f, 70f);
         scene.addObject(torKnot);
@@ -138,10 +133,10 @@ public class Main extends JFrame{
 
 
         for (Object3d obj: scene.objects) {
-            for (Triangle triangle : obj.triangles) {
+            for (Triangle triangle : obj.primitives) {
                 triangle.updateNomrs();
             }
-            for (Triangle triangle : obj.triangles) {
+            for (Triangle triangle : obj.primitives) {
                 triangle.doNormalize();
             }
         }
