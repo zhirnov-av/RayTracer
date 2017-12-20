@@ -188,6 +188,66 @@ public class Triangle extends Primitive implements Comparable{
         return null;
     }
 
+    @Override
+    public float getMinX() {
+        float minX = pv1.p.x;
+        if (pv2.p.x < minX)
+            minX = pv2.p.x;
+        if (pv3.p.x < minX)
+            minX = pv3.p.x;
+        return minX;
+    }
+
+    @Override
+    public float getMaxX() {
+        float maxX = pv1.p.x;
+        if (pv2.p.x > maxX)
+            maxX = pv2.p.x;
+        if (pv3.p.x > maxX)
+            maxX = pv3.p.x;
+        return maxX;
+    }
+
+    @Override
+    public float getMinY() {
+        float minY = pv1.p.y;
+        if (pv2.p.y < minY)
+            minY = pv2.p.y;
+        if (pv3.p.y < minY)
+            minY = pv3.p.y;
+        return minY;
+    }
+
+    @Override
+    public float getMaxY() {
+        float maxY = pv1.p.y;
+        if (pv2.p.y > maxY)
+            maxY = pv2.p.y;
+        if (pv3.p.y > maxY)
+            maxY = pv3.p.y;
+        return maxY;
+    }
+
+    @Override
+    public float getMinZ() {
+        float minZ = pv1.p.z;
+        if (pv2.p.z < minZ)
+            minZ = pv2.p.z;
+        if (pv3.p.z < minZ)
+            minZ = pv3.p.z;
+        return minZ;
+    }
+
+    @Override
+    public float getMaxZ() {
+        float maxZ = pv1.p.z;
+        if (pv2.p.z > maxZ)
+            maxZ = pv2.p.z;
+        if (pv3.p.z > maxZ)
+            maxZ = pv3.p.z;
+        return maxZ;
+    }
+
     /*
     public Vertex3d getIntersectionV2(Vertex3d point1, Vertex3d point2, Vertex3d w){
         Vertex3d n = this.n;

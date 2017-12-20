@@ -8,7 +8,9 @@ public class BoundingBox extends AbstractObject{
     public float minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
     public double distanceToCamera = 0;
 
-    public TreeSet<Primitive> innerTriangles = new TreeSet<>();
+    public TreeSet<Triangle> triangles = new TreeSet<>();
+
+    public TreeSet<Primitive> innerPrimitives = new TreeSet<>();
 
     public BoundingBox(AbstractObject object){
         this.object = object;
@@ -18,6 +20,7 @@ public class BoundingBox extends AbstractObject{
         return object;
     }
 
+    /*
     public void defineBoundings(TreeSet<Triangle> triangles){
 
 
@@ -107,7 +110,60 @@ public class BoundingBox extends AbstractObject{
         this.points.add(new Vertex3d(maxX, maxY, maxZ)); // 6
         this.points.add(new Vertex3d(maxX, minY, maxZ)); // 7
 
-        buildBox(this, this.points, this.primitives);
+        buildBox(this, this.points, this.triangles);
+
+        innerPrimitives.addAll(triangles);
+
+    }
+    */
+
+    public void defineBoundings(TreeSet<Primitive> primitives){
+
+
+        minX = primitives.first().getMinX();
+        minY = primitives.first().getMinY();
+        minZ = primitives.first().getMinZ();
+        maxX = primitives.first().getMaxX();
+        maxY = primitives.first().getMaxY();
+        maxZ = primitives.first().getMaxZ();
+
+
+        for (Primitive tr: primitives){
+
+            if ((tr.object instanceof Object3d) && ((Object3d)(tr.object)).isNeedToRenderer)
+                continue;
+
+            if (tr.getMinX() < minX)
+                minX = tr.getMinX();
+            if (tr.getMaxX() > maxX)
+                maxX = tr.getMaxX();
+
+            if (tr.getMinY() < minY)
+                minY = tr.getMinY();
+            if (tr.getMaxY() > maxY)
+                maxY = tr.getMaxY();
+
+            if (tr.getMinZ() < minZ)
+                minZ = tr.getMinZ();
+            if (tr.getMaxZ() > maxZ)
+                maxZ = tr.getMaxZ();
+
+        }
+
+        minX -= 1; minY -= 1; minZ -= 1;
+        maxX += 1; maxY += 1; maxZ += 1;
+
+        this.points.add(new Vertex3d(minX, minY, minZ)); // 0
+        this.points.add(new Vertex3d(minX, maxY, minZ)); // 1
+        this.points.add(new Vertex3d(maxX, maxY, minZ)); // 2
+        this.points.add(new Vertex3d(maxX, minY, minZ)); // 3
+
+        this.points.add(new Vertex3d(minX, minY, maxZ)); // 4
+        this.points.add(new Vertex3d(minX, maxY, maxZ)); // 5
+        this.points.add(new Vertex3d(maxX, maxY, maxZ)); // 6
+        this.points.add(new Vertex3d(maxX, minY, maxZ)); // 7
+
+        buildBox(this, this.points, this.triangles);
 
         /*
         this.primitives.add(new Triangle(this, 0, 1, 2)); // front
@@ -123,9 +179,11 @@ public class BoundingBox extends AbstractObject{
         */
 
 
-        innerTriangles.addAll(triangles);
+        innerPrimitives.addAll(primitives);
 
     }
+
+
 
     public static void buildBox(AbstractObject obj, ArrayList<Vertex3d> points, TreeSet<Triangle> triangles){
         triangles.add(new Triangle(obj, 0, 1, 2)); // front

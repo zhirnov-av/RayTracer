@@ -1,13 +1,14 @@
 package base;
 
-public class Sphere extends Primitive {
+public class Sphere extends Primitive implements Comparable{
     Vector3d position;
     float radius;
-    Color color;
 
-    public Sphere(Vector3d position, float radius){
+    public Sphere(Vector3d position, float radius, AbstractObject object){
         this.position = position;
         this.radius = radius;
+        this.object = object;
+        this.color = new Color(255, 100, 255);
     }
 
     public Color getIntersectionColor(Vector3d from, Vector3d to){
@@ -16,6 +17,19 @@ public class Sphere extends Primitive {
         else
             return null;
 
+    }
+
+    @Override
+    public Vector3d getNormalInPoint(Vector3d point) {
+
+        Vector3d n = MathUtil.subtract(point, position);
+
+        float nLength = MathUtil.module(n);
+        n.x = n.x / nLength;
+        n.y = n.y / nLength;
+        n.z = n.z / nLength;
+
+        return n;
     }
 
     public Vector3d getIntersection(Vector3d from, Vector3d to){
@@ -57,4 +71,38 @@ public class Sphere extends Primitive {
 
     }
 
+    @Override
+    public float getMinX() {
+        return position.x - radius;
+    }
+
+    @Override
+    public float getMaxX() {
+        return position.x + radius;
+    }
+
+    @Override
+    public float getMinY() {
+        return position.y - radius;
+    }
+
+    @Override
+    public float getMaxY() {
+        return position.y + radius;
+    }
+
+    @Override
+    public float getMinZ() {
+        return position.z - radius;
+    }
+
+    @Override
+    public float getMaxZ() {
+        return position.z + radius;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return 1;
+    }
 }

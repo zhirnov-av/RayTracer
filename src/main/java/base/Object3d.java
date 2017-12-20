@@ -23,6 +23,14 @@ public class Object3d extends AbstractObject{
         this.specular = specular;
     }
 
+    public void setObjectParam(float reflection, float specular, Color color){
+        this.reflection = reflection;
+        this.specular = specular;
+        for(Primitive pr : primitives){
+            pr.color = color;
+        }
+    }
+
 
     public void loadFromTdf(String file, float scale, Vector3d position, Color color) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

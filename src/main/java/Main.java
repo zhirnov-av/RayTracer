@@ -105,7 +105,7 @@ public class Main extends JFrame{
         }
         */
 
-
+        /*
         Object3d torKnot = new Object3d();
         torKnot.setScene(scene);
         torKnot.loadFromTdf("tor_knot.tdf", 1f/4f, new Vector3d(50, -100, 400), new Color(255, 100, 100));
@@ -119,25 +119,41 @@ public class Main extends JFrame{
         tor.defineBoundingBox();
         tor.setObjectParam(0.3f, 20f);
         scene.addObject(tor);
-
+        */
 
         Object3d cube = new Object3d();
         cube.setScene(scene);
         cube.loadFromTdf("cube.tdf", 10, new Vector3d(0, -550, 600), new Color(100, 100, 255));
         cube.defineBoundingBox();
-        cube.isNeedToRenderer = true;
+        //cube.isNeedToRenderer = true;
         cube.usePhongNormals = false;
-        cube.setObjectParam(0.3f, 50f);
+        cube.setObjectParam(0f, 10f);
         scene.addObject(cube);
+
+        Object3d sphere = new Object3d();
+        sphere.setScene(scene);
+        Sphere spherePrimitive = new Sphere(new Vector3d(-100,0,400), 100, sphere);
+        sphere.primitives.add(spherePrimitive);
+        sphere.setObjectParam(0.3f, 10f);
+        scene.addObject(sphere);
+
+        Object3d sphere2 = new Object3d();
+        sphere2.setScene(scene);
+        Sphere spherePrimitive2 = new Sphere(new Vector3d(100,0,450), 120, sphere2);
+        sphere2.primitives.add(spherePrimitive2);
+        sphere2.setObjectParam(0.8f, 100f, new Color(255, 255, 100));
+        scene.addObject(sphere2);
 
 
 
         for (Object3d obj: scene.objects) {
-            for (Triangle triangle : obj.primitives) {
-                triangle.updateNomrs();
+            for (Primitive pr : obj.primitives) {
+                if (pr instanceof Triangle)
+                    ((Triangle)(pr)).updateNomrs();
             }
-            for (Triangle triangle : obj.primitives) {
-                triangle.doNormalize();
+            for (Primitive pr : obj.primitives) {
+                if (pr instanceof Triangle)
+                    ((Triangle)(pr)).doNormalize();
             }
         }
 
