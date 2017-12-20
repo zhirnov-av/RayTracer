@@ -262,26 +262,26 @@ public class Scene extends AbstractObject{
         Vector3d minusVwp = MathUtil.subtract(from, to);
 
         boolean isRendered = false;
-        //for(Object3d obj : objects){
-        if (nodesToRendering != null) {
-            for (TreeNode node : nodesToRendering) {
+        for(Object3d obj : objects){
+        //if (nodesToRendering != null) {
+            //for (TreeNode node : nodesToRendering) {
                 Primitive foundTr = null;
                 Vector3d foundIntersect = null;
                 Vector3d foundN = null;
-                //for (Triangle tr : obj.primitives) {
-                for (Primitive tr : node.getElement().innerPrimitives) {
+                for (Primitive primitive : obj.primitives) {
+                //for (Primitive primitive : node.getElement().innerPrimitives) {
                     Profiler.init("Triangle.getIntersection");
-                    intersect = tr.getIntersection(from, to);
+                    intersect = primitive.getIntersection(from, to);
                     Profiler.check("Triangle.getIntersection");
 
                     if (intersect != null) {
                         Vector3d v = MathUtil.subtract(intersect, from);
                         distance = v.x * v.x + v.y * v.y + v.z * v.z;// intersect.subtract(camera).getLength();
                         if (distance < minDistance) {
-                            foundTr = tr;
+                            foundTr = primitive;
                             minDistance = distance;
-                            color = new Color(tr.getColor());
-                            foundN = tr.getNormalInPoint(intersect);
+                            color = new Color(primitive.getColor());
+                            foundN = primitive.getNormalInPoint(intersect);
                             float intensity =  computeLighting(intersect, foundN, minusVwp, foundTr);
                             color = color.multiplyIntensity(intensity);
                             foundIntersect = intersect;
@@ -295,6 +295,7 @@ public class Scene extends AbstractObject{
                 if (foundTr != null && ((Object3d)foundTr.object).reflection > 0 && depth >= 0) {
                     Vector3d reflectRay = calcReflectRay(MathUtil.multiply(to, -1f), foundN);
                     Vector3d i = new Vector3d(foundIntersect.x + foundN.x, foundIntersect.y + foundN.y, foundIntersect.z + foundN.z);
+                    //Vector3d i = new Vector3d(foundIntersect.x , foundIntersect.y , foundIntersect.z );
                     Color cl = getIntersectionColor(i, reflectRay, depth-1);
                     if (cl != null) {
                         color = color.multiplyIntensity(1f - ((Object3d)foundTr.object).reflection);
@@ -306,7 +307,7 @@ public class Scene extends AbstractObject{
                 //if (isRendered) break;
 
 
-            }
+            //}
         }
 
         /*
@@ -361,7 +362,7 @@ public class Scene extends AbstractObject{
         Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
         Vector3d minusVwp = MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp);
 
-        return getIntersectionColor(camera, vwp, 2);
+        return getIntersectionColor(camera, vwp, 3);
 
     }
 
@@ -490,6 +491,7 @@ public class Scene extends AbstractObject{
 
                 if (light.getType() == LightTypes.POINT) {
 
+                    /*
                     for (float x = ((PointLight)light).getPosition().x - 6; x <= ((PointLight)light).getPosition().x + 6; x += 6f ){
                         for (float z = ((PointLight)light).getPosition().z - 6; z <= ((PointLight)light).getPosition().z + 6; z += 6f ){
 
@@ -507,8 +509,9 @@ public class Scene extends AbstractObject{
 
                         }
                     }
+                    */
 
-                    /*
+
                     Vector3d intersect = findIntersection(point, l);
                     if (intersect != null) {
                         continue;
@@ -518,7 +521,8 @@ public class Scene extends AbstractObject{
                             intensity += ( intensity * tmp / (MathUtil.module(n) * MathUtil.module(l)) );
                         }
                     }
-                    */
+
+
 
 
                 }else {

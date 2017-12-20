@@ -105,7 +105,7 @@ public class Main extends JFrame{
         }
         */
 
-        /*
+
         Object3d torKnot = new Object3d();
         torKnot.setScene(scene);
         torKnot.loadFromTdf("tor_knot.tdf", 1f/4f, new Vector3d(50, -100, 400), new Color(255, 100, 100));
@@ -113,13 +113,19 @@ public class Main extends JFrame{
         torKnot.setObjectParam(0.3f, 70f);
         scene.addObject(torKnot);
 
+
+
+
         Object3d tor = new Object3d();
         tor.setScene(scene);
-        tor.loadFromTdf("torus.tdf", 1, new Vector3d(-100, -150, 400), new Color(100, 255, 100));
+        tor.loadFromTdf("torus.tdf", 2f, new Vector3d(-100, -150, 400), new Color(100, 255, 100));
         tor.defineBoundingBox();
         tor.setObjectParam(0.3f, 20f);
         scene.addObject(tor);
-        */
+
+
+
+
 
         Object3d cube = new Object3d();
         cube.setScene(scene);
@@ -132,16 +138,16 @@ public class Main extends JFrame{
 
         Object3d sphere = new Object3d();
         sphere.setScene(scene);
-        Sphere spherePrimitive = new Sphere(new Vector3d(-100,0,400), 100, sphere);
+        Sphere spherePrimitive = new Sphere(new Vector3d(-130,20,400), 100, sphere);
         sphere.primitives.add(spherePrimitive);
         sphere.setObjectParam(0.3f, 10f);
         scene.addObject(sphere);
 
         Object3d sphere2 = new Object3d();
         sphere2.setScene(scene);
-        Sphere spherePrimitive2 = new Sphere(new Vector3d(100,0,450), 120, sphere2);
+        Sphere spherePrimitive2 = new Sphere(new Vector3d(130,-20,450), 120, sphere2);
         sphere2.primitives.add(spherePrimitive2);
-        sphere2.setObjectParam(0.8f, 100f, new Color(255, 255, 100));
+        sphere2.setObjectParam(0.3f, 20f, new Color(255, 255, 100));
         scene.addObject(sphere2);
 
 
