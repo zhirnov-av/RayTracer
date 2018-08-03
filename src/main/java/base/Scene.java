@@ -23,14 +23,14 @@ public class Scene extends AbstractObject{
     ArrayList<Light> lights = new ArrayList<>();
     public HashMap<String, Long> times = new HashMap<>();
 
-    Vector3d camera = new Vector3d(0f, 0f, -200f);
+    Vector3d camera = new Vector3d(400f, 0f, -50f);
     float viewPortWidth = 1;
     float viewPortHeight = 1;
 
     float dWidth = 0;
     float dHeight = 0;
 
-    Vector3d cameraVector = new Vector3d(0f, -100f, 1f);
+    Vector3d cameraVector = new Vector3d(0f, 0f, 1f);
     Canvas canvas;
 
     public void addLight(Light light){
@@ -262,14 +262,14 @@ public class Scene extends AbstractObject{
         Vector3d minusVwp = MathUtil.subtract(from, to);
 
         boolean isRendered = false;
-        for(Object3d obj : objects){
-        //if (nodesToRendering != null) {
-            //for (TreeNode node : nodesToRendering) {
+        //for(Object3d obj : objects){
+        if (nodesToRendering != null) {
+            for (TreeNode node : nodesToRendering) {
                 Primitive foundTr = null;
                 Vector3d foundIntersect = null;
                 Vector3d foundN = null;
-                for (Primitive primitive : obj.primitives) {
-                //for (Primitive primitive : node.getElement().innerPrimitives) {
+                //for (Primitive primitive : obj.primitives) {
+                for (Primitive primitive : node.getElement().innerPrimitives) {
                     Profiler.init("Triangle.getIntersection");
                     intersect = primitive.getIntersection(from, to);
                     Profiler.check("Triangle.getIntersection");
@@ -307,7 +307,7 @@ public class Scene extends AbstractObject{
                 //if (isRendered) break;
 
 
-            //}
+            }
         }
 
         /*
@@ -362,7 +362,11 @@ public class Scene extends AbstractObject{
         Vector3d vwp = new Vector3d(xVp, yVp, cameraVector.z);
         Vector3d minusVwp = MathUtil.subtract(new Vector3d(0f, 0f, 0f), vwp);
 
-        return getIntersectionColor(camera, vwp, 3);
+        //vwp = MathUtil.add(vwp, camera);
+        vwp = rotateVecor3dByY(vwp, 315f * 3.1415f / 180);
+        //vwp = MathUtil.subtract(vwp, camera);
+
+        return getIntersectionColor(camera, vwp, 2);
 
     }
 
@@ -382,6 +386,29 @@ public class Scene extends AbstractObject{
         return new Vector3d(x, y, z);
         */
     }
+
+    public Vector3d rotateVecor3dByZ(Vector3d v, double a){
+        Vector3d result = new Vector3d();
+        result.x = (float)(v.x * Math.cos(a) - v.y * Math.sin(a));
+        result.y = (float)(v.x * Math.sin(a) + v.y * Math.cos(a));
+        result.z = v.z;
+
+        return result;
+    }
+
+    public Vector3d rotateVecor3dByY(Vector3d v, double a){
+        Vector3d result = new Vector3d();
+        result.x = (float)(v.x * Math.cos(a) + v.z * Math.sin(a));
+        result.y = v.y;
+        result.z = (float)(-v.x * Math.sin(a) + v.z * Math.cos(a));
+
+        return result;
+    }
+
+    public Vector3d moveVector(Vector3d v, Vector3d movement){
+        return MathUtil.add(v, movement);
+    }
+
 
 
     /*
@@ -511,27 +538,29 @@ public class Scene extends AbstractObject{
                     }
                     */
 
+                    if (Constants.SHADOW_RENDERING) {
+                        Vector3d intersect = findIntersection(point, l);
+                        if (intersect != null) {
+                            continue;
+                        } else {
+                            double tmp = MathUtil.dotProduct(n, l);
+                            if (tmp > 0) {
+                                intensity += (intensity * tmp / (MathUtil.module(n) * MathUtil.module(l)));
+                            }
+                        }
 
-                    Vector3d intersect = findIntersection(point, l);
-                    if (intersect != null) {
-                        continue;
                     }else{
-                        double tmp = MathUtil.dotProduct(n,l);
-                        if (tmp > 0){
-                            intensity += ( intensity * tmp / (MathUtil.module(n) * MathUtil.module(l)) );
+                        double tmp = MathUtil.dotProduct(n, l);
+                        if (tmp > 0) {
+                            intensity += (intensity * tmp / (MathUtil.module(n) * MathUtil.module(l)));
                         }
                     }
-
-
-
-
-                }else {
+                } else {
                     double tmp = MathUtil.dotProduct(n, l);
                     if (tmp > 0) {
                         intensity += intensity * tmp / (MathUtil.module(n) * MathUtil.module(l));
                     }
                 }
-
 
                 if (tr.object instanceof Object3d) {
                     float s = ((Object3d) (tr.object)).specular;
@@ -569,7 +598,7 @@ public class Scene extends AbstractObject{
         }else{
             newPlane = "X";
         }
-        if (root.getLevel() == 6) {
+        if (root.getLevel() == 3) {
             return;
         }
 

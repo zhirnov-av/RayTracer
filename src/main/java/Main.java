@@ -105,7 +105,7 @@ public class Main extends JFrame{
         }
         */
 
-
+        /*
         Object3d torKnot = new Object3d();
         torKnot.setScene(scene);
         torKnot.loadFromTdf("tor_knot.tdf", 1f/4f, new Vector3d(50, -100, 400), new Color(255, 100, 100));
@@ -125,7 +125,7 @@ public class Main extends JFrame{
 
 
 
-
+        */
 
         Object3d cube = new Object3d();
         cube.setScene(scene);

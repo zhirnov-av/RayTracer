@@ -121,10 +121,10 @@ public class BoundingBox extends AbstractObject{
 
 
         minX = primitives.first().getMinX();
-        minY = primitives.first().getMinY();
-        minZ = primitives.first().getMinZ();
         maxX = primitives.first().getMaxX();
+        minY = primitives.first().getMinY();
         maxY = primitives.first().getMaxY();
+        minZ = primitives.first().getMinZ();
         maxZ = primitives.first().getMaxZ();
 
 
